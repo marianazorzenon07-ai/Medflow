@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MedFlow — Painel Acadêmico</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f0f2f5;--bg2:#e8eaed;--sur:#fff;--sur2:#f8f9fb;
+  --bor:#e2e5eb;--tx:#1a1d23;--tx2:#5a6172;--tx3:#8a93a8;
+  --ac:#2d6ef7;--ac2:#1a4fd4;--gn:#16a34a;--gnb:#f0fdf4;
+  --yw:#ca8a04;--ywb:#fefce8;--rd:#dc2626;--rdb:#fef2f2;
+  --pu:#7c3aed;--pub:#f5f3ff;--tl:#0d9488;--tlb:#f0fdfa;
+  --r:14px;--rs:8px;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.07);
+  --shl:0 8px 32px rgba(0,0,0,.12);--sw:252px;--tr:.18s ease;
+}
+[data-theme="dark"]{
+  --bg:#0d1117;--bg2:#161b22;--sur:#1c2333;--sur2:#242a3a;
+  --bor:#2d3448;--tx:#e6e9f0;--tx2:#8892aa;--tx3:#5a6480;
+  --ac:#4d85f8;--ac2:#3a6ee0;--gn:#22c55e;--gnb:#052e16;
+  --yw:#eab308;--ywb:#1c1500;--rd:#ef4444;--rdb:#200000;
+  --pu:#a78bfa;--pub:#1e1130;--tl:#2dd4bf;--tlb:#031a17;
+  --sh:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.28);
+  --shl:0 8px 32px rgba(0,0,0,.45);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;overflow-x:hidden;transition:background var(--tr),color var(--tr)}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:var(--sw);min-height:100vh;background:var(--sur);border-right:1px solid var(--bor);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;transition:transform var(--tr),background var(--tr);overflow-y:auto}
+.sb-logo{padding:20px 18px 14px;border-bottom:1px solid var(--bor);flex-shrink:0}
+.sb-logo-text{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ac);letter-spacing:-.5px}
+.sb-logo-sub{font-size:10px;color:var(--tx3);letter-spacing:.05em;text-transform:uppercase;margin-top:1px}
+.sb-section{padding:8px 14px 2px;font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 14px;margin:1px 6px;border-radius:var(--rs);cursor:pointer;color:var(--tx2);font-size:13.5px;font-weight:500;transition:background var(--tr),color var(--tr);position:relative;user-select:none}
+.sb-item:hover{background:var(--bg2);color:var(--tx)}
+.sb-item.active{background:var(--ac);color:#fff}
+.sb-item i{width:17px;text-align:center;font-size:13px;flex-shrink:0}
+.sb-badge{margin-left:auto;background:var(--rd);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;min-width:20px;text-align:center}
+.sb-item.active .sb-badge{background:rgba(255,255,255,.3)}
+.sb-bottom{margin-top:auto;padding:10px 6px 0;border-top:1px solid var(--bor);flex-shrink:0}
+
+/* ─── MAIN ─── */
+.main{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column;transition:margin var(--tr)}
+.topbar{position:sticky;top:0;z-index:90;background:var(--sur);border-bottom:1px solid var(--bor);padding:13px 26px;display:flex;align-items:center;gap:12px;transition:background var(--tr)}
+.topbar-title{font-family:'DM Serif Display',serif;font-size:19px;flex:1;color:var(--tx)}
+.tb-actions{display:flex;gap:8px;align-items:center}
+.icon-btn{width:35px;height:35px;border-radius:var(--rs);border:1px solid var(--bor);background:var(--sur2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx2);font-size:14px;transition:all var(--tr)}
+.icon-btn:hover{background:var(--bg2);color:var(--tx)}
+.content{padding:22px 26px;flex:1}
+.page-hint{font-size:12.5px;color:var(--tx3);margin-bottom:16px;padding:10px 14px;background:var(--sur2);border-radius:var(--rs);border:1px solid var(--bor)}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all var(--tr);white-space:nowrap;font-family:'DM Sans',sans-serif;text-decoration:none}
+.btn-primary{background:var(--ac);color:#fff}
+.btn-primary:hover{background:var(--ac2);box-shadow:0 4px 14px rgba(45,110,247,.3);transform:translateY(-1px)}
+.btn-secondary{background:var(--sur2);color:var(--tx);border:1px solid var(--bor)}
+.btn-secondary:hover{background:var(--bg2)}
+.btn-danger{background:var(--rdb);color:var(--rd);border:1px solid var(--rd)}
+.btn-danger:hover{background:var(--rd);color:#fff}
+.btn-success{background:var(--gnb);color:var(--gn);border:1px solid var(--gn)}
+.btn-success:hover{background:var(--gn);color:#fff}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+
+/* ─── CARDS ─── */
+.card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bor);box-shadow:var(--sh);transition:background var(--tr),border-color var(--tr)}
+
+/* ─── GRID ─── */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.ga{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+
+/* ─── STAT CARD ─── */
+.stat-card{padding:18px;display:flex;align-items:flex-start;gap:12px}
+.stat-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.stat-num{font-family:'DM Serif Display',serif;font-size:27px;line-height:1;color:var(--tx)}
+.stat-lbl{font-size:12px;color:var(--tx2);margin-top:2px}
+
+/* ─── BADGE ─── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.b-blue{background:#eff4ff;color:var(--ac)}
+.b-green{background:var(--gnb);color:var(--gn)}
+.b-yellow{background:var(--ywb);color:var(--yw)}
+.b-red{background:var(--rdb);color:var(--rd)}
+.b-purple{background:var(--pub);color:var(--pu)}
+.b-teal{background:var(--tlb);color:var(--tl)}
+.b-gray{background:var(--bg2);color:var(--tx2)}
+
+/* ─── PROGRESS ─── */
+.pbar{height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}
+.pfill{height:100%;border-radius:3px;background:var(--ac);transition:width .5s ease}
+.pfill-gn{background:var(--gn)}
+.pfill-yw{background:var(--yw)}
+.pfill-rd{background:var(--rd)}
+.pfill-pu{background:var(--pu)}
+
+/* ─── FORMS ─── */
+.fg{margin-bottom:13px}
+.fl{display:block;font-size:11.5px;font-weight:600;color:var(--tx2);margin-bottom:4px;letter-spacing:.02em}
+.fc{width:100%;padding:8px 12px;border-radius:var(--rs);border:1px solid var(--bor);background:var(--sur2);color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;transition:border-color var(--tr),background var(--tr);outline:none}
+.fc:focus{border-color:var(--ac);background:var(--sur)}
+textarea.fc{resize:vertical;min-height:75px}
+select.fc{cursor:pointer}
+
+/* ─── MODAL ─── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity var(--tr);padding:14px}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--sur);border-radius:var(--r);box-shadow:var(--shl);width:100%;max-width:540px;max-height:88vh;overflow-y:auto;transform:translateY(18px);transition:transform var(--tr)}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--bor);position:sticky;top:0;background:var(--sur);z-index:1}
+.modal-ttl{font-family:'DM Serif Display',serif;font-size:17px}
+.modal-bd{padding:18px 22px}
+.modal-ft{padding:14px 22px;border-top:1px solid var(--bor);display:flex;gap:8px;justify-content:flex-end}
+
+/* ─── FILTER BAR ─── */
+.fbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.chip{padding:5px 12px;border-radius:20px;border:1px solid var(--bor);background:var(--sur2);font-size:11.5px;cursor:pointer;transition:all var(--tr);color:var(--tx2)}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+
+/* ─── LIST ITEM ─── */
+.li{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--bor)}
+.li:last-child{border-bottom:none}
+.dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+
+/* ─── AULA CARD ─── */
+.aula-card{padding:13px 15px;border-left:4px solid var(--ac);background:var(--sur);border-radius:0 var(--rs) var(--rs) 0;margin-bottom:7px;box-shadow:var(--sh)}
+.aula-card.s-assistida{border-left-color:var(--gn)}
+.aula-card.s-precisa-revisar{border-left-color:var(--yw)}
+.aula-card.s-revisada{border-left-color:var(--tl)}
+.aula-card.s-nao-assistida{border-left-color:var(--bor);opacity:.8}
+.aula-ttl{font-size:13.5px;font-weight:600;margin-bottom:3px}
+.aula-meta{font-size:11.5px;color:var(--tx2);display:flex;gap:10px;flex-wrap:wrap}
+
+/* ─── RISK ─── */
+.risk-card{padding:18px;overflow:hidden;position:relative}
+.risk-lvl{font-family:'DM Serif Display',serif;font-size:30px;margin:3px 0}
+.rbar{height:5px;border-radius:3px;background:var(--bg2);margin-top:12px}
+.rfill{height:100%;border-radius:3px;transition:width .5s ease}
+.risk-t .rfill{background:var(--gn)}
+.risk-a .rfill{background:var(--yw)}
+.risk-u .rfill{background:var(--rd)}
+
+/* ─── REVISAO ─── */
+.rev-card{padding:11px 14px;margin-bottom:7px;display:flex;align-items:center;gap:11px}
+.rev-ciclo{width:30px;height:30px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+
+/* ─── CHECK ITEM ─── */
+.ck-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--rs);background:var(--sur2);margin-bottom:5px;cursor:pointer;transition:background var(--tr)}
+.ck-item:hover{background:var(--bg2)}
+.ck-item.done{opacity:.55}
+.ck-item.done .ck-lbl{text-decoration:line-through;color:var(--tx3)}
+.ck-box{width:17px;height:17px;border-radius:4px;border:2px solid var(--bor);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all var(--tr)}
+.ck-item.done .ck-box{background:var(--gn);border-color:var(--gn)}
+.ck-lbl{font-size:13px;flex:1}
+
+/* ─── NOTA CARD ─── */
+.nota-card{padding:13px 15px;margin-bottom:8px}
+.nota-prev{font-size:12px;color:var(--tx2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pin-badge{font-size:10px;background:var(--ywb);color:var(--yw);padding:2px 6px;border-radius:10px;font-weight:600}
+
+/* ─── SEARCH ─── */
+.srch{display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--bor);border-radius:var(--rs);background:var(--sur2);max-width:280px}
+.srch input{border:none;background:transparent;outline:none;font-size:13px;color:var(--tx);flex:1;font-family:inherit}
+.srch i{color:var(--tx3);font-size:12px}
+
+/* ─── CHART ─── */
+.chart-wrap{position:relative;height:195px}
+
+/* ─── DAY LABEL ─── */
+.day-lbl{font-size:10.5px;font-weight:700;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase;margin:14px 0 7px}
+
+/* ─── CLASSROOM STATUS ─── */
+.cls-status{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--rs);background:var(--bg2);font-size:13px;margin-bottom:14px}
+.st-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.st-dot.on{background:var(--gn);box-shadow:0 0 0 3px var(--gnb)}
+.st-dot.off{background:var(--tx3)}
+
+/* ─── CODE ─── */
+code{font-family:monospace;font-size:11.5px;background:var(--bg2);padding:1px 5px;border-radius:3px;color:var(--tx2)}
+
+/* ─── MOBILE ─── */
+.ham{display:none}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
+.sb-overlay.open{display:block}
+
+@media(max-width:800px){
+  :root{--sw:0px}
+  .sidebar{transform:translateX(-252px);width:252px;box-shadow:var(--shl)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .ham{display:flex}
+  .content{padding:14px}
+  .topbar{padding:11px 14px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .ga{grid-template-columns:1fr}
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.page{animation:fadeUp .2s ease}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.pulse{animation:pulse 2s infinite}
+.nota-editor{width:100%;min-height:110px;padding:9px 12px;border:1px solid var(--bor);border-radius:var(--rs);background:var(--sur2);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;outline:none;transition:border-color var(--tr)}
+.nota-editor:focus{border-color:var(--ac)}
+.mat-card{padding:0;overflow:hidden}
+.mat-stripe{height:5px}
+.mat-body{padding:14px 16px}
+.countdown{font-family:'DM Serif Display',serif;font-size:34px;color:var(--ac);line-height:1}
+</style>
+</head>
+<body>
+
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSb()"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-text">MedFlow</div>
+    <div class="sb-logo-sub">Painel Acadêmico · Medicina</div>
+  </div>
+
+  <div class="sb-section">Principal</div>
+  <div class="sb-item active" onclick="go('home')" id="n-home"><i class="fa-solid fa-house"></i> Visão Geral</div>
+  <div class="sb-item" onclick="go('rotina')" id="n-rotina"><i class="fa-solid fa-sun"></i> Rotina do Dia</div>
+
+  <div class="sb-section">Acadêmico</div>
+  <div class="sb-item" onclick="go('aulas')" id="n-aulas"><i class="fa-solid fa-chalkboard"></i> Aulas</div>
+  <div class="sb-item" onclick="go('provas')" id="n-provas"><i class="fa-solid fa-file-pen"></i> Provas <span class="sb-badge" id="b-provas" style="display:none">0</span></div>
+  <div class="sb-item" onclick="go('plano')" id="n-plano"><i class="fa-solid fa-calendar-check"></i> Plano de Estudos</div>
+  <div class="sb-item" onclick="go('revisoes')" id="n-revisoes"><i class="fa-solid fa-rotate"></i> Revisões <span class="sb-badge" id="b-revisoes" style="display:none">0</span></div>
+
+  <div class="sb-section">Organização</div>
+  <div class="sb-item" onclick="go('tarefas')" id="n-tarefas"><i class="fa-solid fa-list-check"></i> Tarefas <span class="sb-badge" id="b-tarefas" style="display:none">0</span></div>
+  <div class="sb-item" onclick="go('materias')" id="n-materias"><i class="fa-solid fa-book"></i> Matérias</div>
+  <div class="sb-item" onclick="go('biblioteca')" id="n-biblioteca"><i class="fa-solid fa-layer-group"></i> Biblioteca</div>
+  <div class="sb-item" onclick="go('anotacoes')" id="n-anotacoes"><i class="fa-solid fa-pen-to-square"></i> Anotações</div>
+
+  <div class="sb-section">Análise</div>
+  <div class="sb-item" onclick="go('desempenho')" id="n-desempenho"><i class="fa-solid fa-chart-line"></i> Desempenho</div>
+  <div class="sb-item" onclick="go('classroom')" id="n-classroom"><i class="fa-brands fa-google"></i> Google Classroom</div>
+
+  <div class="sb-bottom">
+    <div class="sb-item" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIco"></i> <span id="themeLbl">Modo Escuro</span></div>
+    <div class="sb-item" onclick="exportData()"><i class="fa-solid fa-download"></i> Exportar JSON</div>
+    <div class="sb-item" onclick="confirmClearAll()"><i class="fa-solid fa-trash"></i> Limpar Dados</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <button class="icon-btn ham" onclick="toggleSb()"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title" id="pageTitle">Visão Geral</div>
+    <div class="tb-actions">
+      <div class="srch" style="max-width:220px">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar..." id="gSearch" oninput="doSearch()">
+      </div>
+      <button class="icon-btn" onclick="go('rotina')" title="Rotina do dia"><i class="fa-solid fa-sun"></i></button>
+    </div>
+  </div>
+  <div class="content" id="pageContent"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" id="modalBox">
+    <div class="modal-hd">
+      <div class="modal-ttl" id="modalTitle"></div>
+      <button class="icon-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-bd" id="modalBody"></div>
+    <div class="modal-ft" id="modalFoot"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════════
+const SK = 'medflow_v2';
+function loadDB(){try{return JSON.parse(localStorage.getItem(SK))||emptyDB();}catch{return emptyDB();}}
+function saveDB(){localStorage.setItem(SK,JSON.stringify(DB));badges();}
+const _DADOS_CALENDARIO = {"aulas": [{"id": "gc10001", "titulo": "Abertura Do Módulo De Drama", "tituloNormalizado": "abertura do módulo de drama", "data": "2026-05-25", "horarioInicio": "08:00", "horarioFim": "09:00", "materia": "DRAMA", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Auditório de medicina - bloco 6"}, {"id": "gc10002", "titulo": "Abertura Do Problema 1 - Módulo De Drama", "tituloNormalizado": "abertura do problema 1 - módulo de drama", "data": "2026-05-25", "horarioInicio": "09:00", "horarioFim": "11:10", "materia": "DRAMA", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10003", "titulo": "Ic Ii", "tituloNormalizado": "- ic ii", "data": "2026-05-25", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "IC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 11 bloco 6"}, {"id": "gc10004", "titulo": "Bases Patológicas", "tituloNormalizado": "bases patológicas", "data": "2026-05-25", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Bases Patológicas", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 12 bloco 6"}, {"id": "gc10007", "titulo": "Leishmaniose", "tituloNormalizado": "leishmaniose", "data": "2026-05-25", "horarioInicio": "17:30", "horarioFim": "19:10", "materia": "Parasitologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Auditório de medicina"}, {"id": "gc10008", "titulo": "Aula: Hc Ii., B6, A3, A4, A1, A2", "tituloNormalizado": "aula: hc ii., b6, a3, a4, a1, a2", "data": "2026-05-26", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10009", "titulo": "Aula: Hc Ii., B8, A1, A2, A3, A4", "tituloNormalizado": "aula: hc ii., b8, a1, a2, a3, a4", "data": "2026-05-26", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10010", "titulo": "Aula: Hc Ii., B2, B7, B8, B3, B4, A1, A2", "tituloNormalizado": "aula: hc ii., b2, b7, b8, b3, b4, a1, a2", "data": "2026-05-26", "horarioInicio": "17:20", "horarioFim": "19:00", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10011", "titulo": "Aula: Hc Ii., B4, B5, B6, B1, B2", "tituloNormalizado": "aula: hc ii., b4, b5, b6, b1, b2", "data": "2026-05-26", "horarioInicio": "19:00", "horarioFim": "20:40", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10012", "titulo": "Farmacodinâmica", "tituloNormalizado": "farmacodinâmica", "data": "2026-05-27", "horarioInicio": "08:00", "horarioFim": "09:40", "materia": "Farmacologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 10 bloco 6"}, {"id": "gc10014", "titulo": "Aula: Hc Ii., A8, A5, A6", "tituloNormalizado": "aula: hc ii., a8, a5, a6", "data": "2026-05-27", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10015", "titulo": "Aula: Hc Ii., A6, A7, A8", "tituloNormalizado": "aula: hc ii., a6, a7, a8", "data": "2026-05-27", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10016", "titulo": "Aula: Hc Ii., A8", "tituloNormalizado": "aula: hc ii., a8", "data": "2026-05-27", "horarioInicio": "17:20", "horarioFim": "19:00", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10017", "titulo": "Fechamento Do Problema 1 E Abertura Do Problema 2 - Módulo De Drama", "tituloNormalizado": "fechamento do problema 1 e abertura do problema 2 - módulo de drama", "data": "2026-05-28", "horarioInicio": "08:30", "horarioFim": "11:40", "materia": "DRAMA", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10018", "titulo": "Farmacodinâmica Ii", "tituloNormalizado": "farmacodinâmica ii", "data": "2026-05-28", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Farmacologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 10 bloco 6"}, {"id": "gc10019", "titulo": "Leptospirose, Febre Amarela", "tituloNormalizado": "leptospirose, febre amarela", "data": "2026-05-28", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Parasitologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 44 bloco 7"}, {"id": "gc10022", "titulo": "Ectoparasitos E Vetores", "tituloNormalizado": "ectoparasitos e vetores", "data": "2026-05-28", "horarioInicio": "17:30", "horarioFim": "19:10", "materia": "Parasitologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 45 bloco 7"}, {"id": "gc10023", "titulo": "Paracoccidioidomicose E Criptococose", "tituloNormalizado": "paracoccidioidomicose e criptococose", "data": "2026-05-29", "horarioInicio": "08:00", "horarioFim": "09:40", "materia": "Micologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 12 bloco 6"}, {"id": "gc10025", "titulo": "Área Verde - Projeto De Extensão", "tituloNormalizado": "área verde - projeto de extensão", "data": "2026-05-29", "horarioInicio": "13:30", "horarioFim": "17:30", "materia": "Projeto de Extensão", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10026", "titulo": "Fechamento Do Problema 2 E Abertura Do Problema 3 - Módulo De Drama", "tituloNormalizado": "fechamento do problema 2 e abertura do problema 3 - módulo de drama", "data": "2026-06-01", "horarioInicio": "08:30", "horarioFim": "11:40", "materia": "DRAMA", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10027", "titulo": "Intoxicações Agudas E Crônicas", "tituloNormalizado": "intoxicações agudas e crônicas", "data": "2026-06-01", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Farmacologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 10 bloco 6"}, {"id": "gc10028", "titulo": "Bases Patológicas", "tituloNormalizado": "bases patológicas", "data": "2026-06-01", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Bases Patológicas", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 12 bloco 6"}, {"id": "gc10031", "titulo": "Fasciolose E Larva Migrans (Lmv, Lmo, Lmc)", "tituloNormalizado": "fasciolose e larva migrans (lmv, lmo, lmc)", "data": "2026-06-01", "horarioInicio": "17:30", "horarioFim": "19:10", "materia": "Parasitologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Auditório de medicina bloco 6"}, {"id": "gc10032", "titulo": "Músculo Da Cabeça E Pescoço Ii", "tituloNormalizado": "músculo da cabeça e pescoço ii", "data": "2026-06-02", "horarioInicio": "08:00", "horarioFim": "09:40", "materia": "Anatomia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Laboratório de anatomia"}, {"id": "gc10034", "titulo": "Aula: Hc Ii., B6, A3, A4, A1, A2", "tituloNormalizado": "aula: hc ii., b6, a3, a4, a1, a2", "data": "2026-06-02", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10035", "titulo": "Aula: Hc Ii., B8, A1, A2, A3, A4", "tituloNormalizado": "aula: hc ii., b8, a1, a2, a3, a4", "data": "2026-06-02", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10036", "titulo": "Aula: Hc Ii., B2, B7, B8, B3, B4, A1, A2", "tituloNormalizado": "aula: hc ii., b2, b7, b8, b3, b4, a1, a2", "data": "2026-06-02", "horarioInicio": "17:20", "horarioFim": "19:00", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10037", "titulo": "Aula: Hc Ii., B4, B5, B6, B1, B2", "tituloNormalizado": "aula: hc ii., b4, b5, b6, b1, b2", "data": "2026-06-02", "horarioInicio": "19:00", "horarioFim": "20:40", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10038", "titulo": "Genética Médica", "tituloNormalizado": "genética médica", "data": "2026-06-03", "horarioInicio": "08:00", "horarioFim": "09:40", "materia": "Genética Médica", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Auditório de medicina bloco 6"}, {"id": "gc10039", "titulo": "Ic Ii", "tituloNormalizado": "- ic ii", "data": "2026-06-03", "horarioInicio": "10:00", "horarioFim": "11:40", "materia": "IC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Auditório de medicina bloco 6"}, {"id": "gc10040", "titulo": "Diagnóstico De Infecções Fungicas", "tituloNormalizado": "diagnóstico de infecções fungicas", "data": "2026-06-03", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Micologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Laboratório microbiologia - bloco 5"}, {"id": "gc10041", "titulo": "Aula: Hc Ii., A8, A5, A6", "tituloNormalizado": "aula: hc ii., a8, a5, a6", "data": "2026-06-03", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10042", "titulo": "Músculo Da Cabeça E Pescoço Ii", "tituloNormalizado": "músculo da cabeça e pescoço ii", "data": "2026-06-03", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Anatomia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Laboratório de anatomia"}, {"id": "gc10044", "titulo": "Aula: Hc Ii., A6, A7, A8", "tituloNormalizado": "aula: hc ii., a6, a7, a8", "data": "2026-06-03", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10048", "titulo": "Feriado", "tituloNormalizado": "feriado", "data": "2026-06-04", "horarioInicio": "08:00", "horarioFim": "17:30", "materia": "Outros", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10049", "titulo": "Feriado", "tituloNormalizado": "feriado", "data": "2026-06-05", "horarioInicio": "08:00", "horarioFim": "17:30", "materia": "Outros", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10050", "titulo": "Fechamento Do Problema 3 E Abertura Do Problema 4 - Módulo De Drama", "tituloNormalizado": "fechamento do problema 3 e abertura do problema 4 - módulo de drama", "data": "2026-06-08", "horarioInicio": "08:30", "horarioFim": "11:40", "materia": "DRAMA", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10051", "titulo": "Bases Patológicas", "tituloNormalizado": "bases patológicas", "data": "2026-06-08", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Bases Patológicas", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 12 bloco 6"}, {"id": "gc10052", "titulo": "Ic Ii", "tituloNormalizado": "- ic ii", "data": "2026-06-08", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "IC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 11 bloco 6"}, {"id": "gc10055", "titulo": "Filarioses, Hidatidose", "tituloNormalizado": "filarioses, hidatidose", "data": "2026-06-08", "horarioInicio": "17:30", "horarioFim": "19:10", "materia": "Parasitologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Auditório de medicina bloco 6"}, {"id": "gc10056", "titulo": "Aula: Hc Ii., B8, A3, A4, A1, A2", "tituloNormalizado": "aula: hc ii., b8, a3, a4, a1, a2", "data": "2026-06-09", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10057", "titulo": "Aula: Hc Ii., B6, A1, A2, A3, A4", "tituloNormalizado": "aula: hc ii., b6, a1, a2, a3, a4", "data": "2026-06-09", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10058", "titulo": "Aula: Hc Ii., B2, B5, B6, B3, B4, A3, A4", "tituloNormalizado": "aula: hc ii., b2, b5, b6, b3, b4, a3, a4", "data": "2026-06-09", "horarioInicio": "17:20", "horarioFim": "19:00", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10059", "titulo": "Aula: Hc Ii., B4, B7, B8, B1, B2", "tituloNormalizado": "aula: hc ii., b4, b7, b8, b1, b2", "data": "2026-06-09", "horarioInicio": "19:00", "horarioFim": "20:40", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10060", "titulo": "Intoxicação Por Medicamentos E Drogas De Abuso", "tituloNormalizado": "intoxicação por medicamentos e drogas de abuso", "data": "2026-06-10", "horarioInicio": "08:00", "horarioFim": "09:40", "materia": "Farmacologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 10 bloco 6"}, {"id": "gc10062", "titulo": "Prick Test", "tituloNormalizado": "prick test", "data": "2026-06-10", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Imunologia/Hematologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Laboratório de análises clínicas - bloco 6"}, {"id": "gc10063", "titulo": "Aula: Hc Ii., A8, A5, A6", "tituloNormalizado": "aula: hc ii., a8, a5, a6", "data": "2026-06-10", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10064", "titulo": "Aula: Hc Ii., A6, A7, A8", "tituloNormalizado": "aula: hc ii., a6, a7, a8", "data": "2026-06-10", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10066", "titulo": "Fechamento Do Problema 4 E Abertura Do Problema 5 - Módulo De Drama", "tituloNormalizado": "fechamento do problema 4 e abertura do problema 5 - módulo de drama", "data": "2026-06-11", "horarioInicio": "08:30", "horarioFim": "11:40", "materia": "DRAMA", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10067", "titulo": "Diagnóstico De Infecções Fungicas", "tituloNormalizado": "diagnóstico de infecções fungicas", "data": "2026-06-11", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Micologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Laboratório microbiologia - bloco 5"}, {"id": "gc10068", "titulo": "Ectoparasitos E Vetores", "tituloNormalizado": "ectoparasitos e vetores", "data": "2026-06-11", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Parasitologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 45 bloco 7"}, {"id": "gc10069", "titulo": "Prick Test", "tituloNormalizado": "prick test", "data": "2026-06-11", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Imunologia/Hematologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Laboratório de análises clínicas - bloco 6"}, {"id": "gc10071", "titulo": "Chikungunya, Dengue E Zika", "tituloNormalizado": "chikungunya, dengue e zika", "data": "2026-06-11", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "Parasitologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 45 bloco 7"}, {"id": "gc10074", "titulo": "Fungos Em Ambientes Hospitalares", "tituloNormalizado": "fungos em ambientes hospitalares", "data": "2026-06-12", "horarioInicio": "08:00", "horarioFim": "09:40", "materia": "Micologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 12 bloco 6"}, {"id": "gc10076", "titulo": "Área Verde - Projeto De Extensão", "tituloNormalizado": "área verde - projeto de extensão", "data": "2026-06-12", "horarioInicio": "13:30", "horarioFim": "17:30", "materia": "Projeto de Extensão", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10077", "titulo": "Fechamento Do Problema 5 - Abertura Do Problema 6 - Módulo De Drama", "tituloNormalizado": "fechamento do problema 5 - abertura do problema 6 - módulo de drama", "data": "2026-06-15", "horarioInicio": "08:30", "horarioFim": "11:30", "materia": "DRAMA", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10078", "titulo": "Exames Físicos", "tituloNormalizado": "exames físicos", "data": "2026-06-15", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Outros", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Simulab II"}, {"id": "gc10079", "titulo": "Anatomia Topográfica", "tituloNormalizado": "anatomia topográfica", "data": "2026-06-15", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Anatomia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Laboratório de anatomia"}, {"id": "gc10084", "titulo": "Aula: Hc Ii., B8", "tituloNormalizado": "aula: hc ii., b8", "data": "2026-06-16", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10086", "titulo": "Aula: Hc Ii., B6", "tituloNormalizado": "aula: hc ii., b6", "data": "2026-06-16", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10087", "titulo": "Aula: Hc Ii., B2, B5, B6, B3, B4, A3, A4", "tituloNormalizado": "aula: hc ii., b2, b5, b6, b3, b4, a3, a4", "data": "2026-06-16", "horarioInicio": "17:20", "horarioFim": "19:00", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10088", "titulo": "Aula: Hc Ii., B4, B7, B8, B1, B2", "tituloNormalizado": "aula: hc ii., b4, b7, b8, b1, b2", "data": "2026-06-16", "horarioInicio": "19:00", "horarioFim": "20:40", "materia": "HC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10089", "titulo": "Ic Ii", "tituloNormalizado": "- ic ii", "data": "2026-06-17", "horarioInicio": "08:00", "horarioFim": "09:40", "materia": "IC II", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Sala 44 bloco 7"}, {"id": "gc10090", "titulo": "Exames Físicos", "tituloNormalizado": "exames físicos", "data": "2026-06-17", "horarioInicio": "08:00", "horarioFim": "09:40", "materia": "Outros", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Simulab II"}, {"id": "gc10093", "titulo": "Anatomia Topográfica", "tituloNormalizado": "anatomia topográfica", "data": "2026-06-17", "horarioInicio": "13:30", "horarioFim": "15:10", "materia": "Anatomia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Laboratório de anatomia"}, {"id": "gc10097", "titulo": "Fechamento Do Problema 6 - Avaliação Formativa - Módulo De Drama", "tituloNormalizado": "fechamento do problema 6 - avaliação formativa - módulo de drama", "data": "2026-06-18", "horarioInicio": "08:30", "horarioFim": "11:30", "materia": "DRAMA", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10098", "titulo": "Ist No Idoso", "tituloNormalizado": "ist no idoso", "data": "2026-06-18", "horarioInicio": "15:30", "horarioFim": "17:10", "materia": "Parasitologia", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": "Auditório de medicina"}, {"id": "gc10100", "titulo": "Área Verde - Projeto De Extensão", "tituloNormalizado": "área verde - projeto de extensão", "data": "2026-06-19", "horarioInicio": "13:30", "horarioFim": "17:30", "materia": "Projeto de Extensão", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10115", "titulo": "Área Verde - Projeto De Extensão", "tituloNormalizado": "área verde - projeto de extensão", "data": "2026-07-17", "horarioInicio": "13:30", "horarioFim": "17:30", "materia": "Projeto de Extensão", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10116", "titulo": "Área Verde - Projeto De Extensão", "tituloNormalizado": "área verde - projeto de extensão", "data": "2026-07-24", "horarioInicio": "13:30", "horarioFim": "17:30", "materia": "Projeto de Extensão", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}, {"id": "gc10117", "titulo": "Área Verde - Projeto De Extensão", "tituloNormalizado": "área verde - projeto de extensão", "data": "2026-07-31", "horarioInicio": "13:30", "horarioFim": "17:30", "materia": "Projeto de Extensão", "modulo": "", "professor": "", "tipo": "Teórica", "status": "nao-assistida", "observacoes": ""}], "provas": [{"id": "gc10046", "titulo": "PROVA VASCULAR: HC II. GRUPOS B7, B8", "data": "2026-06-03", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "SIMULAB 1"}, {"id": "gc10047", "titulo": "PROVA VASCULAR: HC II. GRUPOS B5, B6", "data": "2026-06-03", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "SIMULAB 1"}, {"id": "gc10082", "titulo": "Prova 4 bimestre de Genética Humana - Turmas A e B", "data": "2026-06-16", "materia": "Genética Médica", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Turma A1 sala 44; Turma A2 sala 45; Turma B1 sala 43; Turma B2 sala 42; NAEME sa"}, {"id": "gc10083", "titulo": "PROVA SN e ABDOME: HC II. GRUPOS A1, A2", "data": "2026-06-16", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "SIMULAB 1"}, {"id": "gc10085", "titulo": "PROVA SN e ABDOME: HC II. GRUPOS A3, A4", "data": "2026-06-16", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "SIMULAB 1"}, {"id": "gc10094", "titulo": "PROVA SN e ABDOME: HC II. GRUPOS A5, A6", "data": "2026-06-17", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "SIMULAB 1"}, {"id": "gc10095", "titulo": "PROVA SN e ABDOME: HC II. GRUPOS A7, A8", "data": "2026-06-17", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "SIMULAB 1"}, {"id": "gc10099", "titulo": "Prova 4 bimestre - Bases patológicas - Turmas A e B", "data": "2026-06-19", "materia": "Bases Patológicas", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Turma A1 sala 44; Turma A2 sala 45; Turma B1 sala 43; Turma B2 sala 42; NAEME  s"}, {"id": "gc10101", "titulo": "Prova do módulo de DRAMA", "data": "2026-06-22", "materia": "DRAMA", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Turma A sala 20/21; Turma B sala 32; NAEME salas 26 e 28 - bloco 7"}, {"id": "gc10102", "titulo": "PROVA TEÓRICA: HC II. GRUPOS A e B", "data": "2026-06-23", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Turma A sala 20/21; Turma B sala 32; NAEME salas 26 e 28 - bloco 7"}, {"id": "gc10103", "titulo": "PROVA CARDIO e RESP: HC II. GRUPO B", "data": "2026-06-23", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": ""}, {"id": "gc10104", "titulo": "Prova 4 bimestre de IC II - Turmas A e B", "data": "2026-06-24", "materia": "IC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Turma A sala 20/21; Turma B sala 32; salas 26 e 28 NAEME - bloco 7"}, {"id": "gc10105", "titulo": "PROVA VASCULAR: HC II. GRUPOS B3, B4", "data": "2026-06-24", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "SIMULAB 1"}, {"id": "gc10106", "titulo": "PROVA VASCULAR: HC II. GRUPOS B1, B2", "data": "2026-06-24", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "SIMULAB 1"}, {"id": "gc10107", "titulo": "Prova integrada - Turmas A e B", "data": "2026-06-25", "materia": "Outros", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Turma A1 sala 46; turma A2 sala 47; Turma B1 sala 28; turma B2 sala 45 -  bloco "}, {"id": "gc10108", "titulo": "Prova SUB módulo de proliferação celular", "data": "2026-07-02", "materia": "Proliferação Celular", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Sala 42 bloco 7"}, {"id": "gc10109", "titulo": "Prova SUB de HC II", "data": "2026-07-03", "materia": "HC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Sala 44 bloco 7"}, {"id": "gc10110", "titulo": "Prova sub do módulo processo de envelhecimento", "data": "2026-07-06", "materia": "Processo de Envelhecimento", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Sala 45 bloco 7"}, {"id": "gc10111", "titulo": "Prova SUB de IC II", "data": "2026-07-06", "materia": "IC II", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "sala 45 bloco 7"}, {"id": "gc10112", "titulo": "Prova SUB do módulo de DRAMA", "data": "2026-07-07", "materia": "DRAMA", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Sala 45 bloco 7"}, {"id": "gc10113", "titulo": "Prova SUB de genética médica", "data": "2026-07-07", "materia": "Genética Médica", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Sala 11 bloco 6"}, {"id": "gc10114", "titulo": "Prova SUB de bases patológicas", "data": "2026-07-08", "materia": "Bases Patológicas", "modulo": "", "peso": "", "nota": "", "status": "nao-comecei", "conteudo": "", "observacoes": "Sala 45 bloco 7"}], "tarefas": [], "materias": [{"id": "mat0", "nome": "Anatomia", "descricao": ""}, {"id": "mat1", "nome": "Bases Patológicas", "descricao": ""}, {"id": "mat2", "nome": "DRAMA", "descricao": ""}, {"id": "mat3", "nome": "Farmacologia", "descricao": ""}, {"id": "mat4", "nome": "Genética Médica", "descricao": ""}, {"id": "mat5", "nome": "HC II", "descricao": ""}, {"id": "mat6", "nome": "IC II", "descricao": ""}, {"id": "mat7", "nome": "Imunologia/Hematologia", "descricao": ""}, {"id": "mat8", "nome": "Micologia", "descricao": ""}, {"id": "mat9", "nome": "Parasitologia", "descricao": ""}, {"id": "mat10", "nome": "Processo de Envelhecimento", "descricao": ""}, {"id": "mat11", "nome": "Projeto de Extensão", "descricao": ""}, {"id": "mat12", "nome": "Proliferação Celular", "descricao": ""}], "materiais": [], "revisoes": [], "plano": [], "anotacoes": [], "rotinaNota": "", "userName": "", "classroomOk": false};
+function emptyDB(){
+  // Retorna os dados do Google Agenda como ponto de partida
+  return JSON.parse(JSON.stringify(_DADOS_CALENDARIO));
+}
+let DB = loadDB();
+
+// ═══════════════════════════════════════════════════════════════
+// FUNÇÕES OBRIGATÓRIAS — NORMALIZAÇÃO E DEDUPLICAÇÃO
+// ═══════════════════════════════════════════════════════════════
+function normalizarTituloAula(t){
+  if(!t) return '';
+  return t
+    .replace(/[-–—]?\s*(turma[s]?\s+[a-z0-9]+(\s+e\s+[a-z0-9]+)?)/gi,'')
+    .replace(/[-–—]?\s*(grupo[s]?\s+[a-z0-9]+(\s+e\s+[a-z0-9]+)?)/gi,'')
+    .replace(/[-–—]?\s*(sala\s+[a-z0-9]+)/gi,'')
+    .replace(/[-–—]?\s*(prof\.?\s+\w+(\s+\w+)?)/gi,'')
+    .replace(/[-–—]?\s*(profa?\.?\s+\w+(\s+\w+)?)/gi,'')
+    .replace(/\s*\(turma\s+[^)]+\)/gi,'')
+    .replace(/\s*\(grupo\s+[^)]+\)/gi,'')
+    .replace(/\bteo:\s*/gi,'').replace(/\bprat:\s*/gi,'')
+    .replace(/[-–—,;:]+\s*$/,'').replace(/\s+/g,' ').trim().toLowerCase();
+}
+function normalizarTituloMaterial(t){
+  if(!t) return '';
+  return t
+    .replace(/[-–—]?\s*(turma[s]?\s+[a-z0-9]+)/gi,'')
+    .replace(/[-–—]?\s*(grupo[s]?\s+[a-z0-9]+)/gi,'')
+    .replace(/[-–—]?\s*(sala\s+[a-z0-9]+)/gi,'')
+    .replace(/\s+/g,' ').trim().toLowerCase();
+}
+function removerAulasDuplicadas(lista){
+  const seen=new Map(), out=[];
+  for(const a of lista){
+    const k=`${a.tituloNormalizado||normalizarTituloAula(a.titulo)}|${a.data}|${a.materia||''}`;
+    if(!seen.has(k)){seen.set(k,true);out.push(a);}
+  }
+  return out;
+}
+function removerMateriaisDuplicados(lista){
+  const seen=new Map(), out=[];
+  for(const m of lista){
+    const k=`${m.tituloNormalizado||normalizarTituloMaterial(m.titulo)}|${m.materia||''}|${m.link||''}`;
+    if(!seen.has(k)){seen.set(k,true);out.push(m);}
+  }
+  return out;
+}
+function vincularMaterialComAula(mId,aId){const m=DB.materiais.find(x=>x.id===mId);if(m){m.aulaId=aId;saveDB();}}
+function vincularMaterialComProva(mId,pId){const m=DB.materiais.find(x=>x.id===mId);if(m){m.provaId=pId;saveDB();}}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const today=()=>new Date().toISOString().slice(0,10);
+const now=()=>new Date();
+function diasAte(d){if(!d)return null;return Math.ceil((new Date(d+'T00:00:00')-new Date(today()+'T00:00:00'))/86400000);}
+function fmtD(s){if(!s)return'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;}
+function fmtH(s){return s?s.slice(0,5):'—';}
+function diaSem(s){if(!s)return'';return['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][new Date(s+'T00:00:00').getDay()];}
+function greet(){const h=new Date().getHours();return h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+// ═══════════════════════════════════════════════════════════════
+// RISCO ACADÊMICO
+// ═══════════════════════════════════════════════════════════════
+function calcRisco(){
+  let sc=0;
+  DB.provas.filter(p=>{const d=diasAte(p.data);return d!==null&&d>=0&&d<=7&&p.status!=='realizada';}).forEach(()=>sc+=22);
+  DB.tarefas.filter(t=>t.prazo&&t.prazo<today()&&t.status!=='concluida').forEach(()=>sc+=15);
+  DB.revisoes.filter(r=>r.dataRevisao<today()&&r.status==='pendente').forEach(()=>sc+=10);
+  DB.materiais.filter(m=>m.prazoLeitura&&m.prazoLeitura<today()&&m.statusLeitura!=='lido').forEach(()=>sc+=7);
+  const pct=Math.min(sc,100);
+  if(pct<30)return{n:'Tranquilo',pct,cls:'risk-t',ic:'fa-circle-check',cor:'var(--gn)'};
+  if(pct<65)return{n:'Atenção',pct,cls:'risk-a',ic:'fa-triangle-exclamation',cor:'var(--yw)'};
+  return{n:'Urgente',pct,cls:'risk-u',ic:'fa-circle-exclamation',cor:'var(--rd)'};
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVEGAÇÃO
+// ═══════════════════════════════════════════════════════════════
+const TITLES={home:'Visão Geral',rotina:'Rotina do Dia',aulas:'Agenda de Aulas',provas:'Provas e Avaliações',plano:'Plano de Estudos',revisoes:'Revisões Inteligentes',tarefas:'Tarefas e Pendências',materias:'Matérias / Módulos',biblioteca:'Biblioteca da Aula',desempenho:'Desempenho',anotacoes:'Banco de Anotações',classroom:'Google Classroom'};
+let CUR='home';
+function go(pg){
+  CUR=pg;
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  const n=document.getElementById('n-'+pg);if(n)n.classList.add('active');
+  document.getElementById('pageTitle').textContent=TITLES[pg]||pg;
+  document.getElementById('pageContent').innerHTML='<div class="page">'+render(pg)+'</div>';
+  if(window.innerWidth<=800)closeSb();
+  if(pg==='desempenho')setTimeout(initCharts,80);
+}
+function render(pg){
+  const fn={home:pHome,rotina:pRotina,aulas:pAulas,provas:pProvas,plano:pPlano,revisoes:pRevisoes,tarefas:pTarefas,materias:pMaterias,biblioteca:pBiblioteca,desempenho:pDesempenho,anotacoes:pAnotacoes,classroom:pClassroom};
+  return(fn[pg]||function(){return'<p>Página não encontrada.</p>';})();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SIDEBAR & THEME
+// ═══════════════════════════════════════════════════════════════
+function toggleSb(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open');}
+function closeSb(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('open');}
+function toggleTheme(){
+  const h=document.documentElement,d=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',d?'light':'dark');
+  document.getElementById('themeIco').className=d?'fa-solid fa-moon':'fa-solid fa-sun';
+  document.getElementById('themeLbl').textContent=d?'Modo Escuro':'Modo Claro';
+  localStorage.setItem('mf_theme',d?'light':'dark');
+}
+(()=>{const t=localStorage.getItem('mf_theme');if(t){document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.getElementById('themeIco').className='fa-solid fa-sun';document.getElementById('themeLbl').textContent='Modo Claro';}}})();
+
+// ═══════════════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════════════
+function openModal(ttl,body,foot){
+  document.getElementById('modalTitle').innerHTML=ttl;
+  document.getElementById('modalBody').innerHTML=body;
+  document.getElementById('modalFoot').innerHTML=foot||'';
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){document.getElementById('modalBg').classList.remove('open');}
+document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')closeModal();});
+
+// ═══════════════════════════════════════════════════════════════
+// BADGES
+// ═══════════════════════════════════════════════════════════════
+function badges(){
+  const t=today();
+  setB('b-provas',DB.provas.filter(p=>{const d=diasAte(p.data);return d!==null&&d>=0&&d<=7&&p.status!=='realizada';}).length);
+  setB('b-tarefas',DB.tarefas.filter(t2=>t2.status!=='concluida').length);
+  setB('b-revisoes',DB.revisoes.filter(r=>r.dataRevisao<=t&&r.status==='pendente').length);
+}
+function setB(id,n){const el=document.getElementById(id);if(!el)return;el.textContent=n;el.style.display=n>0?'':'none';}
+
+// Helpers de cor
+const sColor=s=>({assistida:'var(--gn)','precisa-revisar':'var(--yw)',revisada:'var(--tl)','nao-assistida':'var(--bor)'}[s]||'var(--bor)');
+const sBadge=s=>({assistida:'b-green','precisa-revisar':'b-yellow',revisada:'b-teal','nao-assistida':'b-gray'}[s]||'b-gray');
+const sLbl=s=>({assistida:'Assistida','precisa-revisar':'Revisar',revisada:'Revisada','nao-assistida':'Não assistida'}[s]||s);
+const pColor=p=>({urgente:'var(--rd)',alta:'var(--yw)',media:'var(--ac)',baixa:'var(--tx3)'}[p]||'var(--tx3)');
+const pBadge=p=>({urgente:'b-red',alta:'b-yellow',media:'b-blue',baixa:'b-gray'}[p]||'b-gray');
+const tIcon=tp=>({PDF:'fa-file-pdf',vídeo:'fa-circle-play',link:'fa-link',slide:'fa-display',artigo:'fa-newspaper',livro:'fa-book-open'}[tp]||'fa-file');
+
+// ═══════════════════════════════════════════════════════════════
+// ─── HOME ───────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+function pHome(){
+  const t=today(),risco=calcRisco();
+  const ah=DB.aulas.filter(a=>a.data===t);
+  const pp=DB.provas.filter(p=>{const d=diasAte(p.data);return d!==null&&d>=0&&d<=14;}).sort((a,b)=>a.data.localeCompare(b.data));
+  const rh=DB.revisoes.filter(r=>r.dataRevisao<=t&&r.status==='pendente');
+  const ma=DB.materiais.filter(m=>m.prazoLeitura&&m.prazoLeitura<t&&m.statusLeitura!=='lido');
+  const tu=DB.tarefas.filter(x=>x.status!=='concluida').sort((a,b)=>({urgente:0,alta:1,media:2,baixa:3}[a.prioridade]||3)-({urgente:0,alta:1,media:2,baixa:3}[b.prioridade]||3)).slice(0,5);
+  const aa=DB.aulas.filter(a=>a.status==='assistida'||a.status==='revisada').length;
+  const rc=DB.revisoes.filter(r=>r.status==='concluida').length;
+  const ml=DB.materiais.filter(m=>m.statusLeitura==='lido').length;
+
+  return`
+  <div style="margin-bottom:18px">
+    <div style="font-family:'DM Serif Display',serif;font-size:25px;margin-bottom:3px">${greet()}, ${esc(DB.userName||'Estudante')} 👩‍⚕️</div>
+    <div style="color:var(--tx2);font-size:13px">${diaSem(t)}, ${fmtD(t)} · <span onclick="go('rotina')" style="color:var(--ac);cursor:pointer">Abrir rotina do dia →</span></div>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:16px">
+    ${[['Aulas hoje',ah.length,'fa-chalkboard','var(--ac)','#eff4ff'],['Provas (14d)',pp.length,'fa-file-pen','var(--rd)','var(--rdb)'],['Revisões pend.',rh.length,'fa-rotate','var(--yw)','var(--ywb)'],['Tarefas concl.',`${DB.tarefas.filter(x=>x.status==='concluida').length}/${DB.tarefas.length}`,'fa-list-check','var(--gn)','var(--gnb)']].map(([l,n,ic,c,bg])=>`
+    <div class="card stat-card"><div class="stat-icon" style="background:${bg};color:${c}"><i class="fa-solid ${ic}"></i></div><div><div class="stat-num">${n}</div><div class="stat-lbl">${l}</div></div></div>`).join('')}
+  </div>
+
+  <div class="grid g3" style="margin-bottom:16px">
+    <div class="card risk-card ${risco.cls}">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase">Risco Acadêmico</div>
+      <div class="risk-lvl" style="color:${risco.cor}">${risco.n}</div>
+      <div style="font-size:12px;color:var(--tx2)">${risco.pct<30?'Tudo sob controle ✓':risco.pct<65?'Fique atenta às entregas':'Revise suas prioridades agora!'}</div>
+      <div class="rbar"><div class="rfill" style="width:${risco.pct}%"></div></div>
+    </div>
+
+    <div class="card" style="padding:14px 16px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;margin-bottom:9px">Aulas de Hoje</div>
+      ${ah.length===0?'<div style="text-align:center;padding:14px;color:var(--tx3);font-size:13px"><i class="fa-regular fa-calendar" style="font-size:22px;display:block;margin-bottom:6px"></i>Sem aulas hoje</div>':ah.slice(0,4).map(a=>`<div class="li"><div class="dot" style="background:${sColor(a.status)}"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(a.titulo)}</div><div style="font-size:11px;color:var(--tx2)">${fmtH(a.horarioInicio)} · ${esc(a.materia||'—')}</div></div></div>`).join('')}
+      <div style="margin-top:8px"><span onclick="go('aulas')" style="font-size:12px;color:var(--ac);cursor:pointer">Ver agenda →</span></div>
+    </div>
+
+    <div class="card" style="padding:14px 16px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;margin-bottom:9px">Próximas Provas</div>
+      ${pp.length===0?'<div style="text-align:center;padding:14px;color:var(--tx3);font-size:13px"><i class="fa-regular fa-file" style="font-size:22px;display:block;margin-bottom:6px"></i>Sem provas próximas</div>':pp.slice(0,3).map(p=>{const d=diasAte(p.data);return`<div class="li"><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(p.titulo)}</div><div style="font-size:11px;color:var(--tx2)">${esc(p.materia||'—')} · ${fmtD(p.data)}</div></div><span class="badge ${d<=2?'b-red':d<=7?'b-yellow':'b-blue'}">${d===0?'Hoje':d===1?'Amanhã':d+'d'}</span></div>`;}).join('')}
+      <div style="margin-top:8px"><span onclick="go('provas')" style="font-size:12px;color:var(--ac);cursor:pointer">Ver provas →</span></div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card" style="padding:14px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:600"><i class="fa-solid fa-list-check" style="color:var(--ac);margin-right:5px"></i>Tarefas Prioritárias</span>
+        <button class="btn btn-sm btn-primary" onclick="mTarefa()"><i class="fa-solid fa-plus"></i></button>
+      </div>
+      ${tu.length===0?'<div style="text-align:center;padding:14px;color:var(--tx3);font-size:13px">Nenhuma tarefa pendente 🎉</div>':tu.map(t2=>`<div class="li"><div class="dot" style="background:${pColor(t2.prioridade)}"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(t2.titulo)}</div><div style="font-size:11px;color:var(--tx2)">${esc(t2.materia||'Geral')}${t2.prazo?' · '+fmtD(t2.prazo):''}</div></div><span class="badge ${pBadge(t2.prioridade)}">${t2.prioridade||'—'}</span></div>`).join('')}
+    </div>
+    <div class="card" style="padding:14px 16px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px"><i class="fa-solid fa-rotate" style="color:var(--yw);margin-right:5px"></i>Revisões e Materiais</div>
+      ${rh.length===0&&ma.length===0?'<div style="text-align:center;padding:14px;color:var(--tx3);font-size:13px">Tudo em dia ✓</div>':''}
+      ${rh.slice(0,3).map(r=>{const a=DB.aulas.find(x=>x.id===r.aulaId);return`<div class="li"><div class="dot" style="background:var(--yw)"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">Revisar: ${esc(a?a.titulo:'Aula')}</div><div style="font-size:11px;color:var(--tx2)">Ciclo ${r.ciclo}d · ${r.dataRevisao===today()?'Hoje':'Atrasada'}</div></div><button class="btn btn-xs btn-success" onclick="doneRev('${r.id}')">✓</button></div>`;}).join('')}
+      ${ma.slice(0,2).map(m=>`<div class="li"><div class="dot" style="background:var(--rd)"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(m.titulo)}</div><div style="font-size:11px;color:var(--tx2)">Prazo: ${fmtD(m.prazoLeitura)}</div></div><span class="badge b-red">Atrasado</span></div>`).join('')}
+      <div style="margin-top:8px;display:flex;gap:12px"><span onclick="go('revisoes')" style="font-size:12px;color:var(--ac);cursor:pointer">Revisões →</span><span onclick="go('biblioteca')" style="font-size:12px;color:var(--ac);cursor:pointer">Biblioteca →</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:16px 18px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:12px"><i class="fa-solid fa-chart-simple" style="color:var(--ac);margin-right:5px"></i>Progresso Geral</div>
+    <div class="grid g3">
+      ${[['Aulas assistidas',aa,DB.aulas.length,'var(--ac)'],['Revisões feitas',rc,DB.revisoes.length,'var(--gn)'],['Materiais lidos',ml,DB.materiais.length,'var(--pu)']].map(([l,d,t2,c])=>{const pct=t2>0?Math.round((d/t2)*100):0;return`<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${l}</span><span style="font-weight:700;color:${c}">${pct}%</span></div><div class="pbar"><div class="pfill" style="width:${pct}%;background:${c}"></div></div><div style="font-size:11px;color:var(--tx3);margin-top:2px">${d} de ${t2}</div></div>`;}).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── AULAS ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+let afS='todos',afM='todas';
+function pAulas(){
+  const aulas=removerAulasDuplicadas(DB.aulas);
+  const mats=[...new Set(DB.aulas.map(a=>a.materia).filter(Boolean))];
+  const fil=aulas.filter(a=>(afS==='todos'||a.status===afS)&&(afM==='todas'||a.materia===afM)).sort((a,b)=>a.data.localeCompare(b.data));
+  const pd={};fil.forEach(a=>{if(!pd[a.data])pd[a.data]=[];pd[a.data].push(a);});
+  return`
+  <div class="page-hint">Use esta área para organizar suas aulas e marcar o que já foi assistido. Aulas duplicadas (Turma A/B) são agrupadas automaticamente.</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;color:var(--tx2)">${aulas.length} aulas (duplicatas removidas automaticamente)</div>
+    <button class="btn btn-primary" onclick="mAula()"><i class="fa-solid fa-plus"></i> Nova Aula</button>
+  </div>
+  <div class="fbar">
+    <span style="font-size:11px;color:var(--tx3);font-weight:600">Status:</span>
+    ${['todos','nao-assistida','assistida','precisa-revisar','revisada'].map(s=>`<div class="chip ${afS===s?'on':''}" onclick="setAF('s','${s}')">${s==='todos'?'Todos':sLbl(s)}</div>`).join('')}
+    <span style="font-size:11px;color:var(--tx3);font-weight:600;margin-left:4px">Matéria:</span>
+    <div class="chip ${afM==='todas'?'on':''}" onclick="setAF('m','todas')">Todas</div>
+    ${mats.map(m=>`<div class="chip ${afM===m?'on':''}" onclick="setAF('m','${esc(m)}')">${esc(m)}</div>`).join('')}
+  </div>
+  ${Object.keys(pd).length===0?`<div class="card" style="padding:32px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-chalkboard" style="font-size:36px;margin-bottom:10px;display:block"></i><p>Nenhuma aula cadastrada ainda.</p><button class="btn btn-primary" style="margin-top:12px" onclick="mAula()">Adicionar primeira aula</button></div>`:
+  Object.entries(pd).map(([dt,al])=>`
+    <div class="day-lbl">${diaSem(dt)}, ${fmtD(dt)}</div>
+    ${al.map(a=>`
+    <div class="aula-card s-${a.status||'nao-assistida'}">
+      <div style="display:flex;align-items:flex-start;gap:9px">
+        <div style="flex:1">
+          <div class="aula-ttl">${esc(a.titulo)}</div>
+          <div class="aula-meta">
+            ${a.materia?`<span><i class="fa-solid fa-book" style="opacity:.5"></i> ${esc(a.materia)}</span>`:''}
+            ${a.horarioInicio?`<span><i class="fa-regular fa-clock" style="opacity:.5"></i> ${fmtH(a.horarioInicio)}${a.horarioFim?' – '+fmtH(a.horarioFim):''}</span>`:''}
+            ${a.professor?`<span><i class="fa-solid fa-user" style="opacity:.5"></i> ${esc(a.professor)}</span>`:''}
+            ${a.modulo?`<span><i class="fa-solid fa-folder" style="opacity:.5"></i> ${esc(a.modulo)}</span>`:''}
+          </div>
+        </div>
+        <span class="badge ${sBadge(a.status)}">${sLbl(a.status||'nao-assistida')}</span>
+      </div>
+      <div style="display:flex;gap:5px;margin-top:9px;flex-wrap:wrap">
+        <button class="btn btn-xs ${a.status==='assistida'?'btn-success':'btn-secondary'}" onclick="setAS('${a.id}','assistida')" title="${a.status==='assistida'?'Clique para desmarcar':'Marcar como assistida'}">
+          ${a.status==='assistida'?'✓ Assistida (desfazer)':'✓ Assistida'}
+        </button>
+        <button class="btn btn-xs" style="background:${a.status==='precisa-revisar'?'var(--yw)':'var(--ywb)'};color:${a.status==='precisa-revisar'?'#fff':'var(--yw)'};border:1px solid var(--yw);border-radius:var(--rs);font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit" onclick="setAS('${a.id}','precisa-revisar')" title="${a.status==='precisa-revisar'?'Clique para desmarcar':'Marcar para revisar'}">
+          ${a.status==='precisa-revisar'?'↺ Revisar (desfazer)':'↺ Revisar'}
+        </button>
+        <button class="btn btn-xs btn-secondary" onclick="mAula('${a.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-xs btn-danger" onclick="delAula('${a.id}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`).join('')}`).join('')}`;
+}
+function setAF(tipo,v){if(tipo==='s')afS=v;else afM=v;go('aulas');}
+function setAS(id,s){
+  const a=DB.aulas.find(x=>x.id===id);
+  if(!a)return;
+  // Toggle: se já está no status solicitado, voltar para nao-assistida
+  if(a.status===s){
+    a.status='nao-assistida';
+  } else {
+    a.status=s;
+    if(s==='assistida') scheduleRev(a);
+  }
+  saveDB();
+  go(CUR);
+}
+function toggleAulaAssistida(id){setAS(id,'assistida');}
+function toggleAulaPrecisaRevisar(id){setAS(id,'precisa-revisar');}
+function delAula(id){if(!confirm('Excluir aula?'))return;DB.aulas=DB.aulas.filter(a=>a.id!==id);saveDB();go('aulas');}
+function mAula(id){
+  const a=id?DB.aulas.find(x=>x.id===id):null;
+  const mats=[...new Set(DB.materias.map(m=>m.nome))];
+  const b=`<div class="grid g2">
+    <div class="fg" style="grid-column:1/-1"><label class="fl">Título da Aula *</label><input class="fc" id="fa-t" value="${esc(a?.titulo||'')}" placeholder="Ex: Fisiologia Cardiovascular"></div>
+    <div class="fg"><label class="fl">Matéria</label><input class="fc" id="fa-m" list="dl-m" value="${esc(a?.materia||'')}"><datalist id="dl-m">${mats.map(m=>`<option value="${esc(m)}">`).join('')}</datalist></div>
+    <div class="fg"><label class="fl">Módulo</label><input class="fc" id="fa-mo" value="${esc(a?.modulo||'')}" placeholder="Ex: Módulo Cardiovascular"></div>
+    <div class="fg"><label class="fl">Data *</label><input type="date" class="fc" id="fa-d" value="${a?.data||today()}"></div>
+    <div class="fg"><label class="fl">Professor</label><input class="fc" id="fa-p" value="${esc(a?.professor||'')}"></div>
+    <div class="fg"><label class="fl">Início</label><input type="time" class="fc" id="fa-hi" value="${a?.horarioInicio||''}"></div>
+    <div class="fg"><label class="fl">Fim</label><input type="time" class="fc" id="fa-hf" value="${a?.horarioFim||''}"></div>
+    <div class="fg"><label class="fl">Tipo</label><select class="fc" id="fa-tp">${['Teórica','Prática','Tutoria','Seminário','Estágio','Outro'].map(t=>`<option ${a?.tipo===t?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">Status</label><select class="fc" id="fa-s">${['nao-assistida','assistida','precisa-revisar','revisada'].map(s=>`<option value="${s}" ${a?.status===s?'selected':''}>${sLbl(s)}</option>`).join('')}</select></div>
+    <div class="fg" style="grid-column:1/-1"><label class="fl">Observações</label><textarea class="fc" id="fa-o">${esc(a?.observacoes||'')}</textarea></div>
+  </div>`;
+  openModal(a?'Editar Aula':'Nova Aula',b,`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveAula('${id||''}')">Salvar</button>`);
+}
+function saveAula(id){
+  const t=document.getElementById('fa-t').value.trim(),d=document.getElementById('fa-d').value;
+  if(!t||!d){alert('Título e data são obrigatórios');return;}
+  const obj={id:id||uid(),titulo:t,tituloNormalizado:normalizarTituloAula(t),data:d,materia:document.getElementById('fa-m').value.trim(),modulo:document.getElementById('fa-mo').value.trim(),professor:document.getElementById('fa-p').value.trim(),horarioInicio:document.getElementById('fa-hi').value,horarioFim:document.getElementById('fa-hf').value,tipo:document.getElementById('fa-tp').value,status:document.getElementById('fa-s').value,observacoes:document.getElementById('fa-o').value.trim()};
+  if(id){const i=DB.aulas.findIndex(a=>a.id===id);if(i>=0)DB.aulas[i]=obj;}else DB.aulas.push(obj);
+  saveDB();closeModal();go('aulas');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REVISÕES ESPAÇADAS
+// ═══════════════════════════════════════════════════════════════
+function scheduleRev(aula){
+  [1,7,15,30].forEach(dias=>{
+    const dt=new Date(aula.data+'T00:00:00');dt.setDate(dt.getDate()+dias);
+    if(!DB.revisoes.find(r=>r.aulaId===aula.id&&r.ciclo===dias))
+      DB.revisoes.push({id:uid(),aulaId:aula.id,dataRevisao:dt.toISOString().slice(0,10),ciclo:dias,status:'pendente'});
+  });
+}
+function doneRev(id){
+  const r=DB.revisoes.find(x=>x.id===id);
+  if(!r)return;
+  // Toggle: concluida ↔ pendente
+  r.status = r.status==='concluida' ? 'pendente' : 'concluida';
+  saveDB();
+  go(CUR);
+}
+function toggleRevisao(id){doneRev(id);}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── PROVAS ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+function pProvas(){
+  const provas=DB.provas.sort((a,b)=>a.data.localeCompare(b.data));
+  return`
+  <div class="page-hint">Cadastre suas provas, acompanhe a contagem regressiva e registre suas notas.</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;color:var(--tx2)">${provas.length} provas cadastradas</div>
+    <button class="btn btn-primary" onclick="mProva()"><i class="fa-solid fa-plus"></i> Nova Prova</button>
+  </div>
+  ${provas.length===0?`<div class="card" style="padding:32px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-file-pen" style="font-size:36px;margin-bottom:10px;display:block"></i><p>Nenhuma prova cadastrada.</p></div>`:
+  provas.map(p=>{const d=diasAte(p.data);return`
+  <div class="card" style="padding:16px 18px;margin-bottom:10px">
+    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="text-align:center;min-width:56px">
+        <div class="countdown">${d===null?'—':d<0?'✓':d}</div>
+        <div style="font-size:10.5px;color:var(--tx2)">${d<0?'Realizada':d===0?'HOJE!':'dias'}</div>
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+          <span style="font-size:15px;font-weight:700">${esc(p.titulo)}</span>
+          ${p.materia?`<span class="badge b-blue">${esc(p.materia)}</span>`:''}
+          ${d!==null&&d>=0&&d<=7?'<span class="badge b-red pulse">Urgente</span>':''}
+        </div>
+        <div style="font-size:12px;color:var(--tx2);display:flex;gap:12px;flex-wrap:wrap">
+          ${p.data?`<span>📅 ${fmtD(p.data)}</span>`:''}${p.modulo?`<span>📁 ${esc(p.modulo)}</span>`:''}${p.peso?`<span>⚖️ Peso ${esc(p.peso)}</span>`:''}${p.nota?`<span>📊 Nota: <strong>${esc(p.nota)}</strong></span>`:''}
+        </div>
+        ${p.conteudo?`<div style="font-size:12px;color:var(--tx2);margin-top:5px">📋 ${esc(p.conteudo)}</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px;flex-direction:column;align-items:flex-end">
+        <select class="fc" style="width:auto;font-size:11.5px;padding:4px 7px" onchange="setPS('${p.id}',this.value)">
+          ${['nao-comecei','estudando','revisado','pronto','realizada'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${s.replace(/-/g,' ')}</option>`).join('')}
+        </select>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-xs btn-secondary" onclick="mProva('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-xs btn-danger" onclick="delProva('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>`;}).join('')}`;
+}
+function setPS(id,s){const p=DB.provas.find(x=>x.id===id);if(p){p.status=s;saveDB();}}
+function delProva(id){if(!confirm('Excluir?'))return;DB.provas=DB.provas.filter(p=>p.id!==id);saveDB();go('provas');}
+function mProva(id){
+  const p=id?DB.provas.find(x=>x.id===id):null;
+  const b=`
+    <div class="fg"><label class="fl">Nome da Prova *</label><input class="fc" id="fp-t" value="${esc(p?.titulo||'')}" placeholder="Ex: P2 de Anatomia"></div>
+    <div class="grid g2">
+      <div class="fg"><label class="fl">Matéria</label><input class="fc" id="fp-m" value="${esc(p?.materia||'')}"></div>
+      <div class="fg"><label class="fl">Módulo</label><input class="fc" id="fp-mo" value="${esc(p?.modulo||'')}"></div>
+      <div class="fg"><label class="fl">Data *</label><input type="date" class="fc" id="fp-d" value="${p?.data||today()}"></div>
+      <div class="fg"><label class="fl">Peso</label><input class="fc" id="fp-p" value="${esc(p?.peso||'')}" placeholder="Ex: 10"></div>
+      <div class="fg"><label class="fl">Nota obtida</label><input class="fc" id="fp-n" value="${esc(p?.nota||'')}" placeholder="Ex: 8.5"></div>
+      <div class="fg"><label class="fl">Status</label><select class="fc" id="fp-s">${['nao-comecei','estudando','revisado','pronto','realizada'].map(s=>`<option value="${s}" ${p?.status===s?'selected':''}>${s.replace(/-/g,' ')}</option>`).join('')}</select></div>
+    </div>
+    <div class="fg"><label class="fl">Conteúdo cobrado</label><textarea class="fc" id="fp-c">${esc(p?.conteudo||'')}</textarea></div>
+    <div class="fg"><label class="fl">Observações</label><textarea class="fc" id="fp-o">${esc(p?.observacoes||'')}</textarea></div>`;
+  openModal(id?'Editar Prova':'Nova Prova',b,`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProva('${id||''}')">Salvar</button>`);
+}
+function saveProva(id){
+  const t=document.getElementById('fp-t').value.trim(),d=document.getElementById('fp-d').value;
+  if(!t||!d){alert('Preencha nome e data');return;}
+  const obj={id:id||uid(),titulo:t,data:d,materia:document.getElementById('fp-m').value.trim(),modulo:document.getElementById('fp-mo').value.trim(),peso:document.getElementById('fp-p').value,nota:document.getElementById('fp-n').value,status:document.getElementById('fp-s').value,conteudo:document.getElementById('fp-c').value.trim(),observacoes:document.getElementById('fp-o').value.trim()};
+  if(id){const i=DB.provas.findIndex(p=>p.id===id);if(i>=0)DB.provas[i]=obj;}else DB.provas.push(obj);
+  saveDB();closeModal();go('provas');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── TAREFAS ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+let tfil='todos';
+function pTarefas(){
+  const fil=DB.tarefas.filter(x=>tfil==='todos'||x.prioridade===tfil||x.status===tfil).sort((a,b)=>({urgente:0,alta:1,media:2,baixa:3}[a.prioridade]||3)-({urgente:0,alta:1,media:2,baixa:3}[b.prioridade]||3));
+  return`
+  <div class="page-hint">Organize todas as suas pendências acadêmicas e pessoais em um único lugar.</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;color:var(--tx2)">${DB.tarefas.filter(x=>x.status!=='concluida').length} pendentes</div>
+    <button class="btn btn-primary" onclick="mTarefa()"><i class="fa-solid fa-plus"></i> Nova Tarefa</button>
+  </div>
+  <div class="fbar">${['todos','urgente','alta','media','baixa','pendente','em-andamento','concluida'].map(f=>`<div class="chip ${tfil===f?'on':''}" onclick="setTF('${f}')">${f}</div>`).join('')}</div>
+  ${fil.length===0?`<div class="card" style="padding:32px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-list-check" style="font-size:36px;margin-bottom:10px;display:block"></i><p>Nenhuma tarefa encontrada.</p></div>`:
+  fil.map(t2=>`
+  <div class="card" style="padding:12px 14px;margin-bottom:7px;opacity:${t2.status==='concluida'?.55:1}">
+    <div style="display:flex;align-items:center;gap:9px">
+      <input type="checkbox" style="width:15px;height:15px;cursor:pointer;accent-color:var(--gn);flex-shrink:0" ${t2.status==='concluida'?'checked':''} onchange="toggleT('${t2.id}')">
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:600;${t2.status==='concluida'?'text-decoration:line-through;color:var(--tx3)':''}">${esc(t2.titulo)}</div>
+        <div style="font-size:11px;color:var(--tx2)">${esc(t2.materia||'Geral')} · ${esc(t2.categoria||'—')}${t2.prazo?' · Prazo: '+fmtD(t2.prazo):''}</div>
+      </div>
+      <span class="badge ${pBadge(t2.prioridade)}">${t2.prioridade||'—'}</span>
+      <button class="btn btn-xs btn-secondary" onclick="mTarefa('${t2.id}')"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn btn-xs btn-danger" onclick="delT('${t2.id}')"><i class="fa-solid fa-trash"></i></button>
+    </div>
+    ${t2.descricao?`<div style="font-size:12px;color:var(--tx2);margin-top:7px;padding-left:24px">${esc(t2.descricao)}</div>`:''}
+  </div>`).join('')}`;
+}
+function setTF(f){tfil=f;go('tarefas');}
+function toggleT(id){const t=DB.tarefas.find(x=>x.id===id);if(t){t.status=t.status==='concluida'?'pendente':'concluida';saveDB();go('tarefas');}}
+function delT(id){if(!confirm('Excluir?'))return;DB.tarefas=DB.tarefas.filter(t=>t.id!==id);saveDB();go('tarefas');}
+function mTarefa(id){
+  const t=id?DB.tarefas.find(x=>x.id===id):null;
+  const b=`
+    <div class="fg"><label class="fl">Título *</label><input class="fc" id="ft-t" value="${esc(t?.titulo||'')}"></div>
+    <div class="fg"><label class="fl">Descrição</label><textarea class="fc" id="ft-d">${esc(t?.descricao||'')}</textarea></div>
+    <div class="grid g2">
+      <div class="fg"><label class="fl">Matéria</label><input class="fc" id="ft-m" value="${esc(t?.materia||'')}"></div>
+      <div class="fg"><label class="fl">Categoria</label><select class="fc" id="ft-c">${['aula','prova','trabalho','leitura','revisão','estágio','pessoal','artigo','material'].map(c=>`<option ${t?.categoria===c?'selected':''}>${c}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Prioridade</label><select class="fc" id="ft-p">${['baixa','media','alta','urgente'].map(p=>`<option value="${p}" ${t?.prioridade===p?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Prazo</label><input type="date" class="fc" id="ft-pr" value="${t?.prazo||''}"></div>
+      <div class="fg"><label class="fl">Status</label><select class="fc" id="ft-s">${['pendente','em-andamento','concluida'].map(s=>`<option value="${s}" ${t?.status===s?'selected':''}>${s.replace(/-/g,' ')}</option>`).join('')}</select></div>
+    </div>`;
+  openModal(id?'Editar Tarefa':'Nova Tarefa',b,`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveT('${id||''}')">Salvar</button>`);
+}
+function saveT(id){
+  const t=document.getElementById('ft-t').value.trim();if(!t)return;
+  const obj={id:id||uid(),titulo:t,descricao:document.getElementById('ft-d').value.trim(),materia:document.getElementById('ft-m').value.trim(),categoria:document.getElementById('ft-c').value,prioridade:document.getElementById('ft-p').value,prazo:document.getElementById('ft-pr').value,status:document.getElementById('ft-s').value};
+  if(id){const i=DB.tarefas.findIndex(x=>x.id===id);if(i>=0)DB.tarefas[i]=obj;}else DB.tarefas.push(obj);
+  saveDB();closeModal();go('tarefas');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── REVISÕES PAGE ──────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+function pRevisoes(){
+  const t=today();
+  const pend=DB.revisoes.filter(r=>r.status==='pendente').sort((a,b)=>a.dataRevisao.localeCompare(b.dataRevisao));
+  const hj=pend.filter(r=>r.dataRevisao<=t);
+  const fut=pend.filter(r=>r.dataRevisao>t);
+  const conc=DB.revisoes.filter(r=>r.status==='concluida').length;
+  const rCard=r=>{const a=DB.aulas.find(x=>x.id===r.aulaId),atr=r.dataRevisao<t,concl=r.status==='concluida';return`<div class="card rev-card" style="opacity:${concl?.65:1}"><div class="rev-ciclo" style="${atr&&!concl?'background:var(--rd)':concl?'background:var(--gn)':''}">${r.ciclo}d</div><div style="flex:1"><div style="font-size:13.5px;font-weight:600;${concl?'text-decoration:line-through;color:var(--tx3)':''}">${a?esc(a.titulo):'Aula removida'}</div><div style="font-size:11.5px;color:var(--tx2)">${a?esc(a.materia||'—'):'—'} · ${fmtD(r.dataRevisao)} ${atr&&!concl?'<span style="color:var(--rd);font-weight:600">⚠ Atrasada</span>':concl?'<span style="color:var(--gn);font-weight:600">✓ Concluída</span>':''}</div></div><button class="btn btn-sm ${concl?'btn-secondary':'btn-success'}" onclick="doneRev('${r.id}')">${concl?'↺ Reabrir':'✓ Concluir'}</button></div>`;};
+  return`
+  <div class="page-hint">Ao marcar uma aula como assistida, revisões são agendadas automaticamente em 1, 7, 15 e 30 dias.</div>
+  <div class="grid g3" style="margin-bottom:16px">
+    <div class="card stat-card"><div class="stat-icon" style="background:var(--rdb);color:var(--rd)"><i class="fa-solid fa-clock"></i></div><div><div class="stat-num">${hj.length}</div><div class="stat-lbl">Para hoje</div></div></div>
+    <div class="card stat-card"><div class="stat-icon" style="background:#eff4ff;color:var(--ac)"><i class="fa-solid fa-calendar-days"></i></div><div><div class="stat-num">${fut.length}</div><div class="stat-lbl">Agendadas</div></div></div>
+    <div class="card stat-card"><div class="stat-icon" style="background:var(--gnb);color:var(--gn)"><i class="fa-solid fa-circle-check"></i></div><div><div class="stat-num">${conc}</div><div class="stat-lbl">Concluídas</div></div></div>
+  </div>
+  <div class="day-lbl">Para Hoje / Atrasadas</div>
+  ${hj.length===0?`<div class="card" style="padding:22px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-circle-check" style="font-size:28px;margin-bottom:8px;display:block;color:var(--gn)"></i>Nenhuma revisão pendente para hoje!</div>`:hj.map(rCard).join('')}
+  ${fut.length>0?`<div class="day-lbl" style="margin-top:14px">Próximas Revisões</div>${fut.slice(0,10).map(rCard).join('')}`:''}
+  ${conc>0?`<div class="day-lbl" style="margin-top:14px">Concluídas — clique em "↺ Reabrir" para desfazer</div>${DB.revisoes.filter(r=>r.status==='concluida').slice(0,5).map(rCard).join('')}`:''}
+\`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── PLANO DE ESTUDOS ───────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+function pPlano(){
+  const itens=DB.plano.sort((a,b)=>({urgente:0,alta:1,media:2,baixa:3}[a.prioridade]||3)-({urgente:0,alta:1,media:2,baixa:3}[b.prioridade]||3));
+  const conc=itens.filter(i=>i.status==='concluido').length;
+  const pct=itens.length>0?Math.round((conc/itens.length)*100):0;
+  const sugerida=DB.provas.filter(p=>diasAte(p.data)>=0).sort((a,b)=>a.data.localeCompare(b.data))[0]?.materia||'';
+  return`
+  <div class="page-hint">Organize o que você precisa estudar esta semana. A prioridade é sugerida automaticamente com base nas provas próximas.</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;color:var(--tx2)">${conc}/${itens.length} concluídos esta semana</div>
+    <button class="btn btn-primary" onclick="mPlano()"><i class="fa-solid fa-plus"></i> Adicionar Estudo</button>
+  </div>
+  <div class="card" style="padding:14px 16px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="font-weight:600">Progresso da semana</span><span style="color:var(--ac);font-weight:700">${pct}%</span></div>
+    <div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>
+  </div>
+  ${itens.length===0?`<div class="card" style="padding:32px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-calendar-check" style="font-size:36px;margin-bottom:10px;display:block"></i><p>Nenhum estudo planejado.</p></div>`:''}
+  ${itens.map(it=>`
+  <div class="card" style="padding:12px 14px;margin-bottom:7px;opacity:${it.status==='concluido'?.55:1}">
+    <div style="display:flex;align-items:center;gap:9px">
+      <input type="checkbox" style="width:15px;height:15px;cursor:pointer;accent-color:var(--gn);flex-shrink:0" ${it.status==='concluido'?'checked':''} onchange="togglePl('${it.id}')">
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:600;${it.status==='concluido'?'text-decoration:line-through;color:var(--tx3)':''}">${esc(it.materia)}</div>
+        <div style="font-size:11px;color:var(--tx2)">${esc(it.topico||'—')} · ${it.tempo?it.tempo+' min estimados':'—'}</div>
+      </div>
+      <span class="badge ${pBadge(it.prioridade)}">${it.prioridade||'—'}</span>
+      <button class="btn btn-xs btn-danger" onclick="delPl('${it.id}')"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  </div>`).join('')}`;
+}
+function togglePl(id){const i=DB.plano.find(x=>x.id===id);if(i){i.status=i.status==='concluido'?'pendente':'concluido';saveDB();go('plano');}}
+function delPl(id){DB.plano=DB.plano.filter(x=>x.id!==id);saveDB();go('plano');}
+function mPlano(){
+  const sug=DB.provas.filter(p=>diasAte(p.data)>=0).sort((a,b)=>a.data.localeCompare(b.data))[0]?.materia||'';
+  const mats=[...new Set(DB.materias.map(m=>m.nome))];
+  const b=`
+    <div class="fg"><label class="fl">Matéria *</label><input class="fc" id="fpl-m" value="${esc(sug)}" list="dl-pm"><datalist id="dl-pm">${mats.map(m=>`<option value="${esc(m)}">`).join('')}</datalist></div>
+    <div class="fg"><label class="fl">Tópico / Assunto</label><input class="fc" id="fpl-t" placeholder="Ex: Revisão dos slides, capítulo 5..."></div>
+    <div class="grid g2">
+      <div class="fg"><label class="fl">Tempo estimado (min)</label><input type="number" class="fc" id="fpl-tmp" placeholder="Ex: 90"></div>
+      <div class="fg"><label class="fl">Prioridade</label><select class="fc" id="fpl-p">${['baixa','media','alta','urgente'].map(p=>`<option>${p}</option>`).join('')}</select></div>
+    </div>
+    ${sug?`<div style="font-size:12px;color:var(--ac);background:#eff4ff;padding:8px 10px;border-radius:var(--rs);margin-top:4px">💡 Sugestão: <strong>${esc(sug)}</strong> tem prova próxima!</div>`:''}`;
+  openModal('Adicionar Estudo',b,`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="savePl()">Adicionar</button>`);
+}
+function savePl(){
+  const m=document.getElementById('fpl-m').value.trim();if(!m)return;
+  DB.plano.push({id:uid(),materia:m,topico:document.getElementById('fpl-t').value.trim(),tempo:document.getElementById('fpl-tmp').value,prioridade:document.getElementById('fpl-p').value,status:'pendente'});
+  saveDB();closeModal();go('plano');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── MATÉRIAS ───────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+function pMaterias(){
+  const mSet=new Set([...DB.materias.map(m=>m.nome),...DB.aulas.map(a=>a.materia).filter(Boolean)]);
+  const lista=[...mSet].sort();
+  const cores=['var(--ac)','var(--tl)','var(--pu)','var(--gn)','var(--yw)','var(--rd)'];
+  return`
+  <div class="page-hint">Veja o progresso em cada matéria. As matérias são criadas automaticamente quando você adiciona aulas.</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;color:var(--tx2)">${lista.length} matérias</div>
+    <button class="btn btn-primary" onclick="mMateria()"><i class="fa-solid fa-plus"></i> Nova Matéria</button>
+  </div>
+  ${lista.length===0?`<div class="card" style="padding:32px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-book" style="font-size:36px;margin-bottom:10px;display:block"></i><p>Adicione aulas para ver as matérias aqui.</p></div>`:''}
+  <div class="grid ga">
+    ${lista.map((nome,i)=>{
+      const am=DB.aulas.filter(a=>a.materia===nome);
+      const as=am.filter(a=>a.status==='assistida'||a.status==='revisada').length;
+      const pct=am.length>0?Math.round((as/am.length)*100):0;
+      const cor=cores[i%cores.length];
+      const rv=DB.revisoes.filter(r=>{const a=DB.aulas.find(x=>x.id===r.aulaId);return a&&a.materia===nome&&r.status==='pendente';}).length;
+      return`<div class="card mat-card">
+        <div class="mat-stripe" style="background:${cor}"></div>
+        <div class="mat-body">
+          <div style="font-size:15px;font-weight:700;margin-bottom:10px">${esc(nome)}</div>
+          <div class="grid g2" style="gap:6px;margin-bottom:11px">
+            ${[['Aulas',am.length,'fa-chalkboard'],['Assistidas',as,'fa-check'],['Provas',DB.provas.filter(p=>p.materia===nome).length,'fa-file-pen'],['Tarefas',DB.tarefas.filter(t=>t.materia===nome&&t.status!=='concluida').length,'fa-list-check'],['Revisões',rv,'fa-rotate'],['Materiais',DB.materiais.filter(m=>m.materia===nome).length,'fa-layer-group']].map(([l,n,ic])=>`<div style="font-size:11.5px;color:var(--tx2)"><i class="fa-solid ${ic}" style="width:13px;opacity:.5"></i> ${l}: <strong style="color:var(--tx)">${n}</strong></div>`).join('')}
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px"><span>Progresso</span><span style="font-weight:700;color:${cor}">${pct}%</span></div>
+          <div class="pbar"><div class="pfill" style="width:${pct}%;background:${cor}"></div></div>
+        </div>
+      </div>`;}).join('')}
+  </div>`;
+}
+function mMateria(){
+  openModal('Nova Matéria',`<div class="fg"><label class="fl">Nome *</label><input class="fc" id="fm-n" placeholder="Ex: Fisiologia Humana"></div><div class="fg"><label class="fl">Descrição</label><textarea class="fc" id="fm-d"></textarea></div>`,`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveMateria()">Salvar</button>`);
+}
+function saveMateria(){const n=document.getElementById('fm-n').value.trim();if(!n)return;if(!DB.materias.find(m=>m.nome===n))DB.materias.push({id:uid(),nome:n,descricao:document.getElementById('fm-d').value.trim()});saveDB();closeModal();go('materias');}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── BIBLIOTECA ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+let bfil={s:'todos',m:'todas',q:''};
+function pBiblioteca(){
+  const mats=[...new Set(DB.materiais.map(m=>m.materia).filter(Boolean))];
+  const fil=removerMateriaisDuplicados(DB.materiais).filter(m=>(bfil.s==='todos'||m.statusLeitura===bfil.s)&&(bfil.m==='todas'||m.materia===bfil.m)&&(!bfil.q||(m.titulo||'').toLowerCase().includes(bfil.q.toLowerCase())||(m.tags||'').toLowerCase().includes(bfil.q.toLowerCase()))).sort((a,b)=>({urgente:0,alta:1,media:2,baixa:3}[a.prioridade]||3)-({urgente:0,alta:1,media:2,baixa:3}[b.prioridade]||3));
+  return`
+  <div class="page-hint">Organize todos os seus materiais de estudo: artigos, PDFs, slides, vídeos e links. Materiais duplicados (Turma A/B) são removidos automaticamente.</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;color:var(--tx2)">${fil.length} materiais</div>
+    <button class="btn btn-primary" onclick="mMat()"><i class="fa-solid fa-plus"></i> Novo Material</button>
+  </div>
+  <div class="fbar">
+    <div class="srch" style="max-width:200px"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Buscar..." value="${esc(bfil.q)}" oninput="setBQ(this.value)"></div>
+    ${['todos','nao-lido','lendo','lido','revisar'].map(s=>`<div class="chip ${bfil.s===s?'on':''}" onclick="setBF('s','${s}')">${s.replace(/-/g,' ')}</div>`).join('')}
+    <div class="chip ${bfil.m==='todas'?'on':''}" onclick="setBF('m','todas')">Todas</div>
+    ${mats.map(m=>`<div class="chip ${bfil.m===m?'on':''}" onclick="setBF('m','${esc(m)}')">${esc(m)}</div>`).join('')}
+  </div>
+  ${fil.length===0?`<div class="card" style="padding:32px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-layer-group" style="font-size:36px;margin-bottom:10px;display:block"></i><p>Nenhum material encontrado.</p><button class="btn btn-primary" style="margin-top:12px" onclick="mMat()">Adicionar material</button></div>`:
+  fil.map(m=>`
+  <div class="card" style="padding:13px 15px;margin-bottom:7px">
+    <div style="display:flex;align-items:flex-start;gap:11px">
+      <div style="font-size:21px;margin-top:1px"><i class="fa-solid ${tIcon(m.tipo)}" style="color:${({PDF:'var(--rd)',vídeo:'var(--pu)',link:'var(--ac)',slide:'var(--tl)',artigo:'var(--gn)',livro:'var(--yw)'}[m.tipo]||'var(--tx2)')}"></i></div>
+      <div style="flex:1">
+        <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:3px">
+          <span style="font-size:13.5px;font-weight:600">${esc(m.titulo)}</span>
+          <span class="badge ${pBadge(m.prioridade)}">${m.prioridade||'—'}</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--tx2);display:flex;gap:10px;flex-wrap:wrap">
+          ${m.materia?`<span>📚 ${esc(m.materia)}</span>`:''}${m.tipo?`<span>📄 ${esc(m.tipo)}</span>`:''}${m.prazoLeitura?`<span>⏰ ${fmtD(m.prazoLeitura)}</span>`:''}${m.tags?`<span>🏷 ${esc(m.tags)}</span>`:''}
+        </div>
+        ${m.link?`<a href="${esc(m.link)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--ac);margin-top:3px;display:inline-block">Abrir link →</a>`:''}
+      </div>
+      <div style="display:flex;gap:5px;flex-direction:column;align-items:flex-end;flex-shrink:0">
+        <select class="fc" style="width:auto;font-size:11px;padding:3px 6px" onchange="setMS('${m.id}',this.value)">
+          ${['nao-lido','lendo','lido','revisar'].map(s=>`<option value="${s}" ${m.statusLeitura===s?'selected':''}>${s.replace(/-/g,' ')}</option>`).join('')}
+        </select>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-xs btn-secondary" onclick="mMat('${m.id}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-xs btn-danger" onclick="delMat('${m.id}')"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('')}`;
+}
+function setBF(tipo,v){bfil[tipo]=v;go('biblioteca');}
+function setBQ(v){bfil.q=v;go('biblioteca');}
+function setMS(id,s){const m=DB.materiais.find(x=>x.id===id);if(m){m.statusLeitura=s;saveDB();}}
+function delMat(id){if(!confirm('Excluir?'))return;DB.materiais=DB.materiais.filter(m=>m.id!==id);saveDB();go('biblioteca');}
+function mMat(id){
+  const m=id?DB.materiais.find(x=>x.id===id):null;
+  const b=`
+    <div class="fg"><label class="fl">Título *</label><input class="fc" id="fmm-t" value="${esc(m?.titulo||'')}"></div>
+    <div class="grid g2">
+      <div class="fg"><label class="fl">Matéria</label><input class="fc" id="fmm-m" value="${esc(m?.materia||'')}"></div>
+      <div class="fg"><label class="fl">Módulo</label><input class="fc" id="fmm-mo" value="${esc(m?.modulo||'')}"></div>
+      <div class="fg"><label class="fl">Tipo</label><select class="fc" id="fmm-tp">${['PDF','artigo','link','slide','vídeo','livro','outro'].map(t=>`<option ${m?.tipo===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Origem</label><select class="fc" id="fmm-or">${['manual','Google Classroom','Google Drive','link externo'].map(o=>`<option ${m?.origem===o?'selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Prioridade</label><select class="fc" id="fmm-p">${['baixa','media','alta','urgente'].map(p=>`<option value="${p}" ${m?.prioridade===p?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Status</label><select class="fc" id="fmm-s">${['nao-lido','lendo','lido','revisar'].map(s=>`<option value="${s}" ${m?.statusLeitura===s?'selected':''}>${s.replace(/-/g,' ')}</option>`).join('')}</select></div>
+      <div class="fg" style="grid-column:1/-1"><label class="fl">Link / URL</label><input class="fc" id="fmm-l" value="${esc(m?.link||'')}" placeholder="https://..."></div>
+      <div class="fg"><label class="fl">Prazo de Leitura</label><input type="date" class="fc" id="fmm-pz" value="${m?.prazoLeitura||''}"></div>
+      <div class="fg"><label class="fl">Tags</label><input class="fc" id="fmm-tg" value="${esc(m?.tags||'')}" placeholder="cardio, obrigatório, prova..."></div>
+    </div>
+    <div class="fg"><label class="fl">Observações</label><textarea class="fc" id="fmm-ob">${esc(m?.observacoes||'')}</textarea></div>`;
+  openModal(id?'Editar Material':'Novo Material',b,`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveMat('${id||''}')">Salvar</button>`);
+}
+function saveMat(id){
+  const t=document.getElementById('fmm-t').value.trim();if(!t)return;
+  const obj={id:id||uid(),titulo:t,tituloNormalizado:normalizarTituloMaterial(t),materia:document.getElementById('fmm-m').value.trim(),modulo:document.getElementById('fmm-mo').value.trim(),tipo:document.getElementById('fmm-tp').value,origem:document.getElementById('fmm-or').value,prioridade:document.getElementById('fmm-p').value,statusLeitura:document.getElementById('fmm-s').value,link:document.getElementById('fmm-l').value.trim(),prazoLeitura:document.getElementById('fmm-pz').value,tags:document.getElementById('fmm-tg').value.trim(),observacoes:document.getElementById('fmm-ob').value.trim(),dataImportacao:today()};
+  if(id){const i=DB.materiais.findIndex(m=>m.id===id);if(i>=0)DB.materiais[i]=obj;}else DB.materiais.push(obj);
+  saveDB();closeModal();go('biblioteca');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── DESEMPENHO ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+function pDesempenho(){
+  const notas=DB.provas.filter(p=>p.nota);
+  const media=notas.length>0?(notas.reduce((s,p)=>s+parseFloat(p.nota||0),0)/notas.length).toFixed(1):'—';
+  return`
+  <div class="page-hint">Acompanhe seu progresso acadêmico com gráficos e estatísticas.</div>
+  <div class="grid g4" style="margin-bottom:16px">
+    ${[['Aulas',DB.aulas.length,'fa-chalkboard','var(--ac)','#eff4ff'],['Revisões concl.',DB.revisoes.filter(r=>r.status==='concluida').length,'fa-rotate','var(--gn)','var(--gnb)'],['Tarefas concl.',DB.tarefas.filter(t=>t.status==='concluida').length,'fa-list-check','var(--pu)','var(--pub)'],['Média provas',media,'fa-chart-line','var(--yw)','var(--ywb)']].map(([l,n,ic,c,bg])=>`<div class="card stat-card"><div class="stat-icon" style="background:${bg};color:${c}"><i class="fa-solid ${ic}"></i></div><div><div class="stat-num">${n}</div><div class="stat-lbl">${l}</div></div></div>`).join('')}
+  </div>
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card" style="padding:16px 18px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:13px">Progresso por Matéria</div>
+      <div class="chart-wrap"><canvas id="cMat"></canvas></div>
+    </div>
+    <div class="card" style="padding:16px 18px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:13px">Notas das Provas</div>
+      <div class="chart-wrap"><canvas id="cProvas"></canvas></div>
+    </div>
+  </div>
+  <div class="card" style="padding:16px 18px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:13px">Progresso por Matéria (detalhado)</div>
+    ${[...new Set(DB.aulas.map(a=>a.materia).filter(Boolean))].map(m=>{
+      const am=DB.aulas.filter(a=>a.materia===m);
+      const as=am.filter(a=>a.status==='assistida'||a.status==='revisada').length;
+      const pct=am.length>0?Math.round((as/am.length)*100):0;
+      const cor=pct<40?'var(--rd)':pct<70?'var(--yw)':'var(--gn)';
+      return`<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px"><span>${esc(m)}</span><span style="font-weight:700;color:${cor}">${pct}%</span></div><div class="pbar"><div class="pfill" style="width:${pct}%;background:${cor}"></div></div></div>`;
+    }).join('')||'<div style="color:var(--tx3);font-size:13px">Adicione aulas para ver o progresso por matéria.</div>'}
+  </div>`;
+}
+function initCharts(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  const tc=dark?'#8892aa':'#5a6172';
+
+  const cMat=document.getElementById('cMat');
+  if(cMat){
+    const mats=[...new Set(DB.aulas.map(a=>a.materia).filter(Boolean))].slice(0,6);
+    const dados=mats.map(m=>{const t=DB.aulas.filter(a=>a.materia===m).length,a=DB.aulas.filter(a=>a.materia===m&&(a.status==='assistida'||a.status==='revisada')).length;return t>0?Math.round((a/t)*100):0;});
+    if(window._cMat)window._cMat.destroy();
+    window._cMat=new Chart(cMat,{type:'bar',data:{labels:mats,datasets:[{label:'Progresso (%)',data:dados,backgroundColor:'rgba(45,110,247,.7)',borderColor:'#2d6ef7',borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{max:100,ticks:{color:tc}},x:{ticks:{color:tc}}}}});
+  }
+  const cPr=document.getElementById('cProvas');
+  if(cPr){
+    const pn=DB.provas.filter(p=>p.nota);
+    if(window._cPr)window._cPr.destroy();
+    window._cPr=new Chart(cPr,{type:'line',data:{labels:pn.map(p=>p.materia||p.titulo),datasets:[{label:'Nota',data:pn.map(p=>parseFloat(p.nota||0)),borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.15)',tension:.4,fill:true,pointRadius:5,pointBackgroundColor:'#16a34a'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:10,ticks:{color:tc}},x:{ticks:{color:tc}}}}});
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── ROTINA ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+function pRotina(){
+  const t=today();
+  const ah=DB.aulas.filter(a=>a.data===t).sort((a,b)=>(a.horarioInicio||'').localeCompare(b.horarioInicio||''));
+  const rh=DB.revisoes.filter(r=>r.dataRevisao<=t&&r.status==='pendente');
+  const tu=DB.tarefas.filter(t2=>t2.status!=='concluida'&&(t2.prioridade==='urgente'||t2.prioridade==='alta'));
+  const mh=DB.materiais.filter(m=>m.prazoLeitura<=t&&m.statusLeitura!=='lido');
+  const ph=DB.plano.filter(p=>p.status!=='concluido');
+
+  const itens=[
+    ...ah.map(a=>({id:'a-'+a.id,lbl:`Aula: ${a.titulo}`,tp:'aula',done:a.status==='assistida'||a.status==='revisada',aid:a.id})),
+    ...rh.map(r=>{const a=DB.aulas.find(x=>x.id===r.aulaId);return{id:'r-'+r.id,lbl:`Revisar: ${a?a.titulo:'aula'}`,tp:'revisao',done:false,rid:r.id};}),
+    ...tu.map(t2=>({id:'t-'+t2.id,lbl:`Tarefa: ${t2.titulo}`,tp:'tarefa',done:t2.status==='concluida',tid:t2.id})),
+    ...mh.slice(0,2).map(m=>({id:'m-'+m.id,lbl:`Ler: ${m.titulo}`,tp:'material',done:m.statusLeitura==='lido'})),
+    ...ph.slice(0,3).map(p=>({id:'p-'+p.id,lbl:`Estudar: ${p.materia}${p.topico?' — '+p.topico:''}`,tp:'plano',done:false,pid:p.id})),
+  ];
+  const conc=itens.filter(i=>i.done).length;
+  const pct=itens.length>0?Math.round((conc/itens.length)*100):100;
+  return`
+  <div style="max-width:620px;margin:0 auto">
+    <div class="card" style="padding:18px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px">
+        <div><div style="font-size:17px;font-weight:700">Rotina de ${diaSem(t)}, ${fmtD(t)}</div><div style="font-size:12.5px;color:var(--tx2)">${conc} de ${itens.length} itens concluídos</div></div>
+        <div style="font-size:26px;font-weight:700;color:var(--ac);font-family:'DM Serif Display',serif">${pct}%</div>
+      </div>
+      <div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>
+    </div>
+    ${itens.length===0?`<div class="card" style="padding:28px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-sun" style="font-size:32px;margin-bottom:8px;display:block;color:var(--yw)"></i><p>Nada programado para hoje. Descanse ou use o tempo para revisões!</p></div>`:''}
+    ${itens.map(it=>`<div class="ck-item ${it.done?'done':''}" onclick="toggleCk('${it.id}','${it.rid||''}','${it.tid||''}','${it.pid||''}','${it.aid||''}')"><div class="ck-box">${it.done?'<i class="fa-solid fa-check" style="color:#fff;font-size:9px"></i>':''}</div><span class="ck-lbl">${esc(it.lbl)}</span><span class="badge ${({aula:'b-blue',revisao:'b-yellow',tarefa:'b-red',material:'b-gray',plano:'b-teal'}[it.tp]||'b-gray')}">${it.tp}</span></div>`).join('')}
+    <div class="card" style="padding:14px 16px;margin-top:14px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:7px">📝 Anotação rápida do dia</div>
+      <textarea class="nota-editor" id="rotNota" placeholder="Anote algo importante do dia...">${esc(DB.rotinaNota||'')}</textarea>
+      <button class="btn btn-primary btn-sm" style="margin-top:7px" onclick="saveRotNota()">Salvar anotação</button>
+    </div>
+    ${pct===100&&itens.length>0?`<div class="card" style="padding:20px;margin-top:14px;text-align:center;background:var(--gnb);border-color:var(--gn)"><div style="font-size:30px">🎉</div><div style="font-size:15px;font-weight:700;color:var(--gn);margin-top:6px">Parabéns! Dia concluído!</div><div style="font-size:12.5px;color:var(--tx2)">Você completou todos os itens de hoje.</div></div>`:''}
+  </div>`;
+}
+function toggleCk(id,rid,tid,pid,aid){
+  if(rid){
+    // Toggle revisão: pendente ↔ concluida
+    doneRev(rid);
+  } else if(tid){
+    // Toggle tarefa: pendente ↔ concluida
+    toggleT(tid);
+  } else if(pid){
+    // Toggle plano: pendente ↔ concluido
+    togglePl(pid);
+  } else if(aid){
+    // Toggle aula: assistida ↔ nao-assistida
+    setAS(aid,'assistida');
+  } else {
+    go('rotina');
+  }
+}
+function toggleChecklist(id,rid,tid,pid,aid){toggleCk(id,rid,tid,pid,aid);}
+function saveRotNota(){DB.rotinaNota=document.getElementById('rotNota').value;saveDB();alert('Anotação salva!');}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── ANOTAÇÕES ──────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+let nBusca='';
+function pAnotacoes(){
+  const fil=DB.anotacoes.filter(n=>!nBusca||(n.titulo+n.conteudo).toLowerCase().includes(nBusca.toLowerCase())).sort((a,b)=>(b.fixada?1:0)-(a.fixada?1:0)||b.data?.localeCompare(a.data||''));
+  return`
+  <div class="page-hint">Registre insights, resumos e pontos importantes das suas aulas. Fixe as notas mais importantes.</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div class="srch" style="max-width:260px"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Buscar anotações..." value="${esc(nBusca)}" oninput="setNB(this.value)"></div>
+    <button class="btn btn-primary" onclick="mNota()"><i class="fa-solid fa-plus"></i> Nova Anotação</button>
+  </div>
+  ${fil.length===0?`<div class="card" style="padding:32px;text-align:center;color:var(--tx3)"><i class="fa-solid fa-pen-to-square" style="font-size:36px;margin-bottom:10px;display:block"></i><p>Nenhuma anotação ainda.</p></div>`:''}
+  <div class="grid ga">
+    ${fil.map(n=>`
+    <div class="card nota-card" style="${n.fixada?'border-top:3px solid var(--yw)':''}">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+        <span style="font-size:13.5px;font-weight:700;flex:1">${esc(n.titulo)}</span>
+        ${n.fixada?'<span class="pin-badge">📌 Fixada</span>':''}
+      </div>
+      <div class="nota-prev">${esc(n.conteudo||'')}</div>
+      <div style="display:flex;gap:7px;align-items:center;margin-top:9px;flex-wrap:wrap">
+        ${n.materia?`<span class="badge b-blue">${esc(n.materia)}</span>`:''}
+        ${n.tags?`<span class="badge b-gray">${esc(n.tags)}</span>`:''}
+        <span style="font-size:11px;color:var(--tx3);margin-left:auto">${fmtD(n.data)}</span>
+      </div>
+      <div style="display:flex;gap:5px;margin-top:9px">
+        <button class="btn btn-xs btn-secondary" onclick="pinNota('${n.id}')">${n.fixada?'Desafixar':'📌 Fixar'}</button>
+        <button class="btn btn-xs btn-secondary" onclick="mNota('${n.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-xs btn-danger" onclick="delNota('${n.id}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+function setNB(v){nBusca=v;go('anotacoes');}
+function pinNota(id){const n=DB.anotacoes.find(x=>x.id===id);if(n){n.fixada=!n.fixada;saveDB();go('anotacoes');}}
+function delNota(id){if(!confirm('Excluir anotação?'))return;DB.anotacoes=DB.anotacoes.filter(n=>n.id!==id);saveDB();go('anotacoes');}
+function mNota(id){
+  const n=id?DB.anotacoes.find(x=>x.id===id):null;
+  const b=`
+    <div class="fg"><label class="fl">Título *</label><input class="fc" id="fn-t" value="${esc(n?.titulo||'')}"></div>
+    <div class="grid g2">
+      <div class="fg"><label class="fl">Matéria</label><input class="fc" id="fn-m" value="${esc(n?.materia||'')}"></div>
+      <div class="fg"><label class="fl">Módulo</label><input class="fc" id="fn-mo" value="${esc(n?.modulo||'')}"></div>
+    </div>
+    <div class="fg"><label class="fl">Conteúdo</label><textarea class="nota-editor" id="fn-c" style="min-height:130px">${esc(n?.conteudo||'')}</textarea></div>
+    <div class="fg"><label class="fl">Tags</label><input class="fc" id="fn-tg" value="${esc(n?.tags||'')}" placeholder="Ex: cardio, importante, prova1"></div>`;
+  openModal(id?'Editar Anotação':'Nova Anotação',b,`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveNota('${id||''}')">Salvar</button>`);
+}
+function saveNota(id){
+  const t=document.getElementById('fn-t').value.trim();if(!t)return;
+  const obj={id:id||uid(),titulo:t,materia:document.getElementById('fn-m').value.trim(),modulo:document.getElementById('fn-mo').value.trim(),conteudo:document.getElementById('fn-c').value.trim(),tags:document.getElementById('fn-tg').value.trim(),data:today(),fixada:id?DB.anotacoes.find(n=>n.id===id)?.fixada||false:false};
+  if(id){const i=DB.anotacoes.findIndex(n=>n.id===id);if(i>=0)DB.anotacoes[i]=obj;}else DB.anotacoes.push(obj);
+  saveDB();closeModal();go('anotacoes');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── GOOGLE CLASSROOM ───────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+function pClassroom(){
+  const turmas = DB._turmasClassroom || [];
+  return`
+  <div class="page-hint">Gerencie sua conexão com o Google Classroom e sincronize materiais e atividades direto para o sistema.</div>
+
+  <!-- STATUS DE CONEXÃO -->
+  <div class="cls-status" style="margin-bottom:14px">
+    <div class="st-dot ${DB.classroomOk?'on':'off'}"></div>
+    <div style="flex:1">
+      <div style="font-size:13.5px;font-weight:600">${DB.classroomOk?'✅ Conectado ao Google Classroom':'⚠️ Não conectado'}</div>
+      <div style="font-size:12px;color:var(--tx2)">${DB.classroomOk?'Autenticado com sua conta Google — pronto para sincronizar':'Clique em Conectar para autenticar'}</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="autenticarGoogle()">${DB.classroomOk?'Reconectar':'Conectar'}</button>
+  </div>
+
+  <!-- SINCRONIZAÇÃO -->
+  <div class="card" style="padding:18px 20px;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:5px">🔄 Sincronização do Classroom</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:16px">Use os botões abaixo para buscar dados diretamente do Google Classroom. ${!DB.classroomOk?'<strong style="color:var(--yw)">Conecte sua conta primeiro.</strong>':''}</div>
+
+    <div class="grid g2" style="gap:10px;margin-bottom:14px">
+      <!-- Listar Turmas -->
+      <button class="btn btn-secondary" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto" onclick="btnListarTurmas()">
+        <i class="fa-solid fa-school" style="font-size:20px;color:var(--ac)"></i>
+        <span style="font-size:13px;font-weight:600">Listar Turmas</span>
+        <span style="font-size:11px;color:var(--tx3)">Ver suas turmas ativas</span>
+      </button>
+
+      <!-- Importar Materiais -->
+      <button class="btn btn-secondary" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto" onclick="btnImportarMateriais()">
+        <i class="fa-solid fa-layer-group" style="font-size:20px;color:var(--tl)"></i>
+        <span style="font-size:13px;font-weight:600">Importar Materiais</span>
+        <span style="font-size:11px;color:var(--tx3)">PDFs, links, slides das turmas</span>
+      </button>
+
+      <!-- Importar Atividades -->
+      <button class="btn btn-secondary" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto" onclick="btnImportarAtividades()">
+        <i class="fa-solid fa-list-check" style="font-size:20px;color:var(--pu)"></i>
+        <span style="font-size:13px;font-weight:600">Importar Atividades</span>
+        <span style="font-size:11px;color:var(--tx3)">Tarefas e atividades do Classroom</span>
+      </button>
+
+      <!-- Sincronizar Tudo -->
+      <button class="btn btn-primary" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto" onclick="btnSincronizarTudo()">
+        <i class="fa-solid fa-rotate" style="font-size:20px"></i>
+        <span style="font-size:13px;font-weight:600">Sincronizar Tudo</span>
+        <span style="font-size:11px;opacity:.8">Materiais + atividades de uma vez</span>
+      </button>
+    </div>
+
+    <!-- Resultado / Log -->
+    <div id="cls-log" style="display:none;background:var(--bg2);border-radius:var(--rs);padding:12px 14px;font-size:12.5px;color:var(--tx2);line-height:1.7;max-height:260px;overflow-y:auto;font-family:monospace"></div>
+
+    <!-- Turmas listadas -->
+    ${turmas.length > 0 ? `
+    <div style="margin-top:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Turmas encontradas (${turmas.length})</div>
+      ${turmas.map(t=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--bg2);border-radius:var(--rs);margin-bottom:6px">
+        <i class="fa-solid fa-graduation-cap" style="color:var(--ac);flex-shrink:0"></i>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${esc(t.name)}</div>
+          <div style="font-size:11px;color:var(--tx3)">ID: ${esc(t.id)} ${t.section?'· '+esc(t.section):''}</div>
+        </div>
+        <button class="btn btn-xs btn-secondary" onclick="btnImportarPorTurma('${esc(t.id)}','${esc(t.name)}')">Importar</button>
+      </div>`).join('')}
+    </div>` : ''}
+  </div>
+
+  <!-- CONFIGURAÇÃO -->
+  <div class="card" style="padding:18px 20px;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">⚙️ Configuração OAuth</div>
+    <div class="fg"><label class="fl">Google OAuth Client ID</label><input class="fc" id="gcid" value="${esc(localStorage.getItem('mf_gcid')||'')}" placeholder="xxxxxx.apps.googleusercontent.com"><div style="font-size:11px;color:var(--tx3);margin-top:3px">Não altere se a autenticação já está funcionando.</div></div>
+    <button class="btn btn-secondary btn-sm" onclick="saveGCID()">Salvar Client ID</button>
+  </div>
+
+  <!-- STATS DA ÚLTIMA SINCRONIZAÇÃO -->
+  <div class="card" style="padding:18px 20px;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">📊 Dados importados do Classroom</div>
+    <div class="grid g3" style="gap:10px">
+      <div style="text-align:center;padding:14px;background:var(--bg2);border-radius:var(--rs)">
+        <div style="font-family:'DM Serif Display',serif;font-size:28px;color:var(--tl)">${DB.materiais.filter(m=>m.origem==='Google Classroom').length}</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:2px">Materiais</div>
+      </div>
+      <div style="text-align:center;padding:14px;background:var(--bg2);border-radius:var(--rs)">
+        <div style="font-family:'DM Serif Display',serif;font-size:28px;color:var(--pu)">${DB.tarefas.filter(t=>t.categoria==='material do Classroom').length}</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:2px">Atividades</div>
+      </div>
+      <div style="text-align:center;padding:14px;background:var(--bg2);border-radius:var(--rs)">
+        <div style="font-family:'DM Serif Display',serif;font-size:28px;color:var(--ac)">${(DB._turmasClassroom||[]).length}</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:2px">Turmas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORTAÇÃO MANUAL JSON -->
+  <div class="card" style="padding:18px 20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px">📥 Importação Manual via JSON</div>
+    <p style="font-size:12px;color:var(--tx2);margin-bottom:10px">Cole um array JSON para importar materiais manualmente como fallback:</p>
+    <textarea class="fc" id="jsonIn" style="min-height:80px;font-family:monospace;font-size:11.5px" placeholder='[{"titulo":"Artigo 1","materia":"Anatomia","link":"https://...","tipo":"artigo"}]'></textarea>
+    <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="importJSON()">Importar JSON</button>
+  </div>`;
+}
+function saveGCID(){const v=document.getElementById('gcid').value.trim();localStorage.setItem('mf_gcid',v);alert('Client ID salvo! Clique em Conectar.');}
+
+// ── FORMATAÇÃO DE HORÁRIO COM TIMEZONE (America/Sao_Paulo) ────
+function formatarHorarioGoogle(dateTime) {
+  if (!dateTime) return '';
+  return new Date(dateTime).toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Sao_Paulo'
+  });
+}
+function formatarDataGoogle(dateTime) {
+  if (!dateTime) return '';
+  return new Date(dateTime).toLocaleDateString('pt-BR', {
+    timeZone: 'America/Sao_Paulo'
+  });
+}
+function formatarDataISOGoogle(dateTime) {
+  // Retorna YYYY-MM-DD no fuso de São Paulo
+  if (!dateTime) return '';
+  const d = new Date(dateTime);
+  const sp = new Date(d.toLocaleString('en-CA', { timeZone: 'America/Sao_Paulo' }));
+  // toLocaleString en-CA devolve YYYY-MM-DD
+  return d.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+}
+
+// ── CLASSROOM FUNCTIONS (estrutura real) ──────────────────────
+async function autenticarGoogle(){
+  const cid=localStorage.getItem('mf_gcid');
+  if(!cid){alert('Configure o Google Client ID primeiro.');return;}
+  try{
+    await new Promise((res,rej)=>{if(window.google){res();return;}const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=res;s.onerror=()=>rej(new Error('Falha ao carregar Google Identity'));document.head.appendChild(s);});
+    window._tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:cid,
+      scope:'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly https://www.googleapis.com/auth/drive.readonly',
+      callback:async(resp)=>{
+        if(resp.error){alert('Erro OAuth: '+resp.error);return;}
+        window._gToken=resp.access_token;
+        DB.classroomOk=true;saveDB();
+        alert('Autenticado! Importando materiais...');
+        await importarMateriaisClassroom();
+        go('classroom');
+      }
+    });
+    window._tokenClient.requestAccessToken();
+  }catch(e){alert('Erro: '+e.message+'\n\nVerifique o Client ID e as APIs ativadas.');}
+}
+async function listarCursosClassroom(){
+  const r=await fetch('https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE',{headers:{Authorization:'Bearer '+window._gToken}});
+  const d=await r.json();return d.courses||[];
+}
+async function listarMateriaisDoCurso(courseId){
+  const tk=window._gToken;
+  const[mat,work]=await Promise.all([
+    fetch(`https://classroom.googleapis.com/v1/courses/${courseId}/courseWorkMaterials`,{headers:{Authorization:'Bearer '+tk}}).then(r=>r.json()),
+    fetch(`https://classroom.googleapis.com/v1/courses/${courseId}/courseWork`,{headers:{Authorization:'Bearer '+tk}}).then(r=>r.json()),
+  ]);
+  return[...(mat.courseWorkMaterial||[]),...(work.courseWork||[])];
+}
+async function listarAtividadesDoCurso(courseId){
+  const r=await fetch(`https://classroom.googleapis.com/v1/courses/${courseId}/courseWork`,{headers:{Authorization:'Bearer '+window._gToken}});
+  const d=await r.json();return d.courseWork||[];
+}
+async function importarMateriaisClassroom(){
+  const cursos=await listarCursosClassroom();
+  let n=0;
+  for(const c of cursos){
+    const its=await listarMateriaisDoCurso(c.id);
+    for(const it of its){
+      const titulo=normalizarTituloMaterial(it.title||'Material sem título');
+      const links=(it.materials||[]).filter(m=>m.link||m.driveFile||m.youtubeVideo);
+      const link=links.length>0?(links[0].link?.url||links[0].driveFile?.driveFile?.alternateLink||''):'';
+      // prazoLeitura: usar timezone São Paulo se vier dateTime
+      const prazoRaw = it.dueDate
+        ? `${it.dueDate.year}-${String(it.dueDate.month).padStart(2,'0')}-${String(it.dueDate.day).padStart(2,'0')}`
+        : (it.scheduledTime ? formatarDataISOGoogle(it.scheduledTime) : '');
+      DB.materiais.push({id:uid(),titulo,tituloNormalizado:normalizarTituloMaterial(titulo),materia:c.name,modulo:it.topicId||'',tipo:link.includes('youtube')?'vídeo':link.includes('drive')?'PDF':'link',origem:'Google Classroom',link,statusLeitura:'nao-lido',prioridade:'media',dataImportacao:today(),prazoLeitura:prazoRaw,tags:'classroom'});
+      n++;
+    }
+  }
+  DB.materiais=removerMateriaisDuplicados(DB.materiais);
+  saveDB();alert(`${n} materiais importados e deduplicados!`);
+}
+// ── BOTÕES DE SINCRONIZAÇÃO ───────────────────────────────────
+function clsLog(msg, append){
+  const el = document.getElementById('cls-log');
+  if (!el) return;
+  el.style.display = 'block';
+  if (append) el.innerHTML += msg + '<br>';
+  else el.innerHTML = msg + '<br>';
+  el.scrollTop = el.scrollHeight;
+}
+function checkAuth(){
+  if (!DB.classroomOk || !window._gToken) {
+    alert('Conecte sua conta Google primeiro. Clique em "Conectar".');
+    return false;
+  }
+  return true;
+}
+
+async function btnListarTurmas(){
+  if (!checkAuth()) return;
+  clsLog('🔍 Buscando turmas...');
+  try {
+    const cursos = await listarCursosClassroom();
+    DB._turmasClassroom = cursos;
+    saveDB();
+    if (cursos.length === 0) { clsLog('⚠️ Nenhuma turma ativa encontrada.'); return; }
+    clsLog(`✅ ${cursos.length} turma(s) encontrada(s):`);
+    cursos.forEach(c => clsLog(`&nbsp;&nbsp;• ${esc(c.name)} (ID: ${c.id})`, true));
+    go('classroom');
+  } catch(e) {
+    clsLog('❌ Erro: ' + e.message);
+  }
+}
+
+async function btnImportarMateriais(){
+  if (!checkAuth()) return;
+  clsLog('📦 Importando materiais de todas as turmas...');
+  try {
+    const cursos = await listarCursosClassroom();
+    let total = 0;
+    for (const c of cursos) {
+      clsLog(`  → Buscando: ${esc(c.name)}`, true);
+      const its = await listarMateriaisDoCurso(c.id);
+      for (const it of its) {
+        const titulo = normalizarTituloMaterial(it.title || 'Material sem título');
+        const links = (it.materials || []).filter(m => m.link || m.driveFile || m.youtubeVideo);
+        const link = links.length > 0 ? (links[0].link?.url || links[0].driveFile?.driveFile?.alternateLink || '') : '';
+        DB.materiais.push({
+          id: uid(), titulo, tituloNormalizado: normalizarTituloMaterial(titulo),
+          materia: c.name, modulo: it.topicId || '',
+          tipo: link.includes('youtube') ? 'vídeo' : link.includes('drive') ? 'PDF' : 'link',
+          origem: 'Google Classroom', link, statusLeitura: 'nao-lido',
+          prioridade: 'media', dataImportacao: today(), tags: 'classroom',
+        });
+        total++;
+      }
+    }
+    DB.materiais = removerMateriaisDuplicados(DB.materiais);
+    saveDB();
+    clsLog(`✅ ${total} material(is) importado(s) e deduplicados. Veja na Biblioteca!`, true);
+  } catch(e) {
+    clsLog('❌ Erro: ' + e.message, true);
+  }
+}
+
+async function btnImportarAtividades(){
+  if (!checkAuth()) return;
+  clsLog('📋 Importando atividades/tarefas de todas as turmas...');
+  try {
+    const cursos = await listarCursosClassroom();
+    let total = 0;
+    for (const c of cursos) {
+      clsLog(`  → Buscando atividades: ${esc(c.name)}`, true);
+      const ativs = await listarAtividadesDoCurso(c.id);
+      for (const at of ativs) {
+        const titulo = normalizarTituloMaterial(at.title || 'Atividade sem título');
+      // Prazo: usar dueDate (já vem como data local do Google) ou scheduledTime com tz correto
+        const prazo = at.dueDate
+          ? `${at.dueDate.year}-${String(at.dueDate.month).padStart(2,'0')}-${String(at.dueDate.day).padStart(2,'0')}`
+          : (at.scheduledTime ? formatarDataISOGoogle(at.scheduledTime) : '');
+        // Evitar duplicatas por título + matéria
+        const jaExiste = DB.tarefas.find(t =>
+          t.titulo === titulo && t.materia === c.name
+        );
+        if (!jaExiste) {
+          DB.tarefas.push({
+            id: uid(), titulo,
+            descricao: at.description || '',
+            materia: c.name,
+            categoria: 'material do Classroom',
+            prioridade: prazo && diasAte(prazo) <= 7 ? 'alta' : 'media',
+            prazo, status: 'pendente',
+          });
+          total++;
+        }
+      }
+    }
+    saveDB();
+    clsLog(`✅ ${total} atividade(s) importada(s) para Tarefas!`, true);
+  } catch(e) {
+    clsLog('❌ Erro: ' + e.message, true);
+  }
+}
+
+async function btnSincronizarTudo(){
+  if (!checkAuth()) return;
+  clsLog('🔄 Sincronizando tudo...');
+  await btnImportarMateriais();
+  await btnImportarAtividades();
+  clsLog('🎉 Sincronização completa! Veja Biblioteca e Tarefas.', true);
+}
+
+async function btnImportarPorTurma(courseId, courseName){
+  if (!checkAuth()) return;
+  clsLog(`📦 Importando da turma: ${esc(courseName)}...`);
+  try {
+    const its = await listarMateriaisDoCurso(courseId);
+    const ativs = await listarAtividadesDoCurso(courseId);
+    let nm = 0, na = 0;
+    for (const it of its) {
+      const titulo = normalizarTituloMaterial(it.title || 'Material');
+      const links = (it.materials || []).filter(m => m.link || m.driveFile || m.youtubeVideo);
+      const link = links.length > 0 ? (links[0].link?.url || links[0].driveFile?.driveFile?.alternateLink || '') : '';
+      DB.materiais.push({id:uid(),titulo,tituloNormalizado:normalizarTituloMaterial(titulo),materia:courseName,modulo:it.topicId||'',tipo:link.includes('youtube')?'vídeo':link.includes('drive')?'PDF':'link',origem:'Google Classroom',link,statusLeitura:'nao-lido',prioridade:'media',dataImportacao:today(),tags:'classroom'});
+      nm++;
+    }
+    for (const at of ativs) {
+      const titulo = normalizarTituloMaterial(at.title || 'Atividade');
+      const prazo = at.dueDate ? `${at.dueDate.year}-${String(at.dueDate.month).padStart(2,'0')}-${String(at.dueDate.day).padStart(2,'0')}` : '';
+      if (!DB.tarefas.find(t => t.titulo === titulo && t.materia === courseName)) {
+        DB.tarefas.push({id:uid(),titulo,descricao:at.description||'',materia:courseName,categoria:'material do Classroom',prioridade:prazo&&diasAte(prazo)<=7?'alta':'media',prazo,status:'pendente'});
+        na++;
+      }
+    }
+    DB.materiais = removerMateriaisDuplicados(DB.materiais);
+    saveDB();
+    clsLog(`✅ ${nm} material(is) e ${na} atividade(s) importados de "${esc(courseName)}"!`, true);
+  } catch(e) {
+    clsLog('❌ Erro: ' + e.message, true);
+  }
+}
+
+function importJSON(){
+  try{
+    const arr=JSON.parse(document.getElementById('jsonIn').value.trim());
+    if(!Array.isArray(arr)){alert('Use um array JSON: [...]');return;}
+    arr.forEach(it=>{if(!it.titulo)return;DB.materiais.push({id:uid(),titulo:it.titulo,tituloNormalizado:normalizarTituloMaterial(it.titulo),materia:it.materia||'',modulo:it.modulo||'',tipo:it.tipo||'link',origem:'manual',link:it.link||'',statusLeitura:'nao-lido',prioridade:it.prioridade||'media',tags:it.tags||'',dataImportacao:today()});});
+    DB.materiais=removerMateriaisDuplicados(DB.materiais);
+    saveDB();alert('Importado!');go('biblioteca');
+  }catch(e){alert('JSON inválido: '+e.message);}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BUSCA GLOBAL
+// ═══════════════════════════════════════════════════════════════
+function doSearch(){
+  const q=document.getElementById('gSearch').value.toLowerCase().trim();
+  if(!q)return;
+  const res=[
+    ...DB.aulas.filter(a=>a.titulo.toLowerCase().includes(q)).map(a=>({tp:'Aula',ttl:a.titulo,pg:'aulas'})),
+    ...DB.provas.filter(p=>p.titulo.toLowerCase().includes(q)).map(p=>({tp:'Prova',ttl:p.titulo,pg:'provas'})),
+    ...DB.tarefas.filter(t=>t.titulo.toLowerCase().includes(q)).map(t=>({tp:'Tarefa',ttl:t.titulo,pg:'tarefas'})),
+    ...DB.materiais.filter(m=>m.titulo.toLowerCase().includes(q)).map(m=>({tp:'Material',ttl:m.titulo,pg:'biblioteca'})),
+    ...DB.anotacoes.filter(n=>(n.titulo+n.conteudo).toLowerCase().includes(q)).map(n=>({tp:'Nota',ttl:n.titulo,pg:'anotacoes'})),
+  ].slice(0,9);
+  if(res.length===0){openModal('Busca',`<div style="text-align:center;color:var(--tx3);padding:20px">Nenhum resultado para "<strong>${esc(q)}</strong>"</div>`,`<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>`);return;}
+  openModal(`Resultados para "${esc(q)}"`,res.map(r=>`<div class="li"><span class="badge b-blue">${r.tp}</span><span style="flex:1;margin-left:8px;font-size:13px">${esc(r.ttl)}</span><button class="btn btn-xs btn-secondary" onclick="go('${r.pg}');closeModal()">Ver</button></div>`).join(''),`<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>`);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT / IMPORT / CLEAR
+// ═══════════════════════════════════════════════════════════════
+function exportData(){
+  const b=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`medflow_${today()}.json`;a.click();
+}
+function confirmClearAll(){
+  if(!confirm('Tem certeza? Todos os dados serão apagados permanentemente!'))return;
+  if(!confirm('Última confirmação: apagar TUDO?'))return;
+  localStorage.removeItem(SK);DB=emptyDB();saveDB();go('home');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+go('home');
+badges();
+
+// Boas-vindas
+if(!DB.userName){
+  setTimeout(()=>{
+    const nome=prompt('Bem-vinda ao MedFlow! 👩‍⚕️\nQual é o seu nome?');
+    if(nome&&nome.trim()){DB.userName=nome.trim();saveDB();go('home');}
+  },600);
+}
+</script>
+</body>
+</html>
