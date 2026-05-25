@@ -541,11 +541,11 @@ function pAulas(){
         <span class="badge ${sBadge(a.status)}">${sLbl(a.status||'nao-assistida')}</span>
       </div>
       <div style="display:flex;gap:5px;margin-top:9px;flex-wrap:wrap">
-        <button class="btn btn-xs ${a.status==='assistida'?'btn-success':'btn-secondary'}" onclick="setAS('${a.id}','assistida')" title="${a.status==='assistida'?'Clique para desmarcar':'Marcar como assistida'}">
-          ${a.status==='assistida'?'✓ Assistida (desfazer)':'✓ Assistida'}
+        <button class="btn btn-xs ${a.status==='assistida'?'btn-success':'btn-secondary'}" onclick="setAS('${a.id}','assistida')">
+          ${a.status==='assistida'?'✓ Assistida — desfazer':'✓ Assistida'}
         </button>
-        <button class="btn btn-xs" style="background:${a.status==='precisa-revisar'?'var(--yw)':'var(--ywb)'};color:${a.status==='precisa-revisar'?'#fff':'var(--yw)'};border:1px solid var(--yw);border-radius:var(--rs);font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit" onclick="setAS('${a.id}','precisa-revisar')" title="${a.status==='precisa-revisar'?'Clique para desmarcar':'Marcar para revisar'}">
-          ${a.status==='precisa-revisar'?'↺ Revisar (desfazer)':'↺ Revisar'}
+        <button class="btn btn-xs" style="background:${a.status==='precisa-revisar'?'var(--yw)':'var(--ywb)'};color:${a.status==='precisa-revisar'?'#fff':'var(--yw)'};border:1px solid var(--yw);border-radius:var(--rs);font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit" onclick="setAS('${a.id}','precisa-revisar')">
+          ${a.status==='precisa-revisar'?'↺ Revisar — desfazer':'↺ Revisar'}
         </button>
         <button class="btn btn-xs btn-secondary" onclick="mAula('${a.id}')"><i class="fa-solid fa-pen"></i></button>
         <button class="btn btn-xs btn-danger" onclick="delAula('${a.id}')"><i class="fa-solid fa-trash"></i></button>
@@ -744,7 +744,7 @@ function pRevisoes(){
   const hj=pend.filter(r=>r.dataRevisao<=t);
   const fut=pend.filter(r=>r.dataRevisao>t);
   const conc=DB.revisoes.filter(r=>r.status==='concluida').length;
-  const rCard=r=>{const a=DB.aulas.find(x=>x.id===r.aulaId),atr=r.dataRevisao<t,concl=r.status==='concluida';return`<div class="card rev-card" style="opacity:${concl?.65:1}"><div class="rev-ciclo" style="${atr&&!concl?'background:var(--rd)':concl?'background:var(--gn)':''}">${r.ciclo}d</div><div style="flex:1"><div style="font-size:13.5px;font-weight:600;${concl?'text-decoration:line-through;color:var(--tx3)':''}">${a?esc(a.titulo):'Aula removida'}</div><div style="font-size:11.5px;color:var(--tx2)">${a?esc(a.materia||'—'):'—'} · ${fmtD(r.dataRevisao)} ${atr&&!concl?'<span style="color:var(--rd);font-weight:600">⚠ Atrasada</span>':concl?'<span style="color:var(--gn);font-weight:600">✓ Concluída</span>':''}</div></div><button class="btn btn-sm ${concl?'btn-secondary':'btn-success'}" onclick="doneRev('${r.id}')">${concl?'↺ Reabrir':'✓ Concluir'}</button></div>`;};
+  const rCard=r=>{const a=DB.aulas.find(x=>x.id===r.aulaId),atr=r.dataRevisao<t,concl=r.status==='concluida';return`<div class="card rev-card" style="opacity:${concl ? 0.65 : 1}"><div class="rev-ciclo" style="${atr&&!concl?'background:var(--rd)':concl?'background:var(--gn)':''}">${r.ciclo}d</div><div style="flex:1"><div style="font-size:13.5px;font-weight:600;${concl?'text-decoration:line-through;color:var(--tx3)':''}">${a?esc(a.titulo):'Aula removida'}</div><div style="font-size:11.5px;color:var(--tx2)">${a?esc(a.materia||'—'):'—'} · ${fmtD(r.dataRevisao)} ${atr&&!concl?'<span style="color:var(--rd);font-weight:600">⚠ Atrasada</span>':concl?'<span style="color:var(--gn);font-weight:600">✓ Concluída</span>':''}</div></div><button class="btn btn-sm ${concl?'btn-secondary':'btn-success'}" onclick="doneRev('${r.id}')">${concl?'↺ Reabrir':'✓ Concluir'}</button></div>`;};
   return`
   <div class="page-hint">Ao marcar uma aula como assistida, revisões são agendadas automaticamente em 1, 7, 15 e 30 dias.</div>
   <div class="grid g3" style="margin-bottom:16px">
